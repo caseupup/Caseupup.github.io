@@ -6,7 +6,7 @@
 <style>
 :root{color-scheme:dark;--bg:#0d121b;--panel:#151e2b;--panel2:#1c2939;--line:#2a3a50;--text:#f3f6fb;--muted:#9aa9bd;--accent:#31c48d;--gold:#f5c451;--red:#f0717d}
 *{box-sizing:border-box}html{min-height:100%;scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% -15%,#1c3547 0,#0d121b 58%);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
-.wrap{max-width:1050px;margin:auto;padding:16px 13px 112px}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;min-height:46px}.brand{min-width:0;cursor:pointer}.logo{font-size:25px;font-weight:950;letter-spacing:-1.2px;line-height:1.05}.logo span{color:var(--accent)}.sub{font-size:9px;color:var(--muted);letter-spacing:1.8px;margin-top:4px}.balance-pill{display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:13px;background:linear-gradient(145deg,#1c2d3d,#14202c);border:1px solid #35516a;box-shadow:0 5px 18px #0003;white-space:nowrap;max-height:42px}.coin{font-size:17px}.balance-value{font-size:15px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums}.test-credit{border:1px solid #347a62;background:linear-gradient(145deg,#1d6049,#174332);color:#baf7dd;border-radius:11px;padding:9px 10px;font-size:12px;font-weight:900;white-space:nowrap;cursor:pointer;box-shadow:0 4px 13px #0003}.test-credit:active{transform:scale(.97)}
+.wrap{max-width:1050px;margin:auto;padding:16px 13px 112px}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;min-height:46px}.brand{min-width:0;cursor:pointer}.logo{font-size:25px;font-weight:950;letter-spacing:-1.2px;line-height:1.05}.logo span{color:var(--accent)}.sub{font-size:9px;color:var(--muted);letter-spacing:1.8px;margin-top:4px}.balance-pill{display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:13px;background:linear-gradient(145deg,#1c2d3d,#14202c);border:1px solid #35516a;box-shadow:0 5px 18px #0003;white-space:nowrap;max-height:42px}.coin{font-size:17px}.balance-value{font-size:15px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums}.profile-shortcut{width:38px;height:38px;min-width:38px;border-radius:12px;border:1px solid #3b536b;background:linear-gradient(145deg,#263c50,#172535);color:#fff;display:grid;place-items:center;padding:0;cursor:pointer;box-shadow:0 5px 16px #0003;font-size:19px;overflow:hidden}.profile-shortcut .avatar-mark{font-size:17px;font-weight:950;letter-spacing:-1px;color:#c9ffeb;background:linear-gradient(145deg,#24664f,#172d3a);width:100%;height:100%;display:grid;place-items:center}.profile-shortcut:active{transform:scale(.96)}.profile-card{text-align:center;max-width:560px;margin:0 auto}.profile-avatar-large{width:92px;height:92px;border-radius:25px;margin:4px auto 13px;display:grid;place-items:center;background:linear-gradient(145deg,#245b50,#182a3d);border:1px solid #477b70;box-shadow:0 8px 25px #0005;font-size:42px;font-weight:950;color:#d4fff0}.avatar-options{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:14px 0}.avatar-option{height:48px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:24px;cursor:pointer}.avatar-option.selected{border:2px solid var(--accent);background:#1d3b36}.profile-username{font-size:21px;font-weight:900;margin:6px 0 3px}.profile-email{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.profile-actions{display:grid;gap:9px;margin-top:18px}.test-credit{border:1px solid #347a62;background:linear-gradient(145deg,#1d6049,#174332);color:#baf7dd;border-radius:11px;padding:9px 10px;font-size:12px;font-weight:900;white-space:nowrap;cursor:pointer;box-shadow:0 4px 13px #0003}.test-credit:active{transform:scale(.97)}
 .nav{position:fixed;left:50%;bottom:max(8px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(720px,calc(100% - 18px));display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;background:#101925ed;padding:6px;border:1px solid #34465b;border-radius:17px;z-index:50;backdrop-filter:blur(16px);box-shadow:0 10px 35px #0009}.nav button{display:flex;align-items:center;justify-content:center;flex-direction:column;width:100%;min-width:0;min-height:43px;height:43px;border:0;background:transparent;color:var(--muted);padding:7px 1px;border-radius:11px;font-weight:800;font-size:11px;line-height:1.15;letter-spacing:-.25px;white-space:nowrap;text-align:center;overflow:hidden}.nav button.active{background:#244b43;color:#c9ffeb}
 h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size:12px}.section{background:linear-gradient(145deg,#182333,#121a26);border:1px solid var(--line);border-radius:17px;padding:15px;box-shadow:0 10px 30px #0002}.case-stage{text-align:center;margin-bottom:14px}.stage-kicker{font-size:10px;color:var(--muted);letter-spacing:1.5px;font-weight:800}.case-title{font-size:22px;font-weight:900;margin:6px 0 2px}.price{color:var(--gold);font-weight:850}.case-description{color:var(--muted);font-size:12px;margin:4px 0 12px}.reel-wrap{height:126px;position:relative;overflow:hidden;border-radius:13px;border:1px solid #34485d;background:linear-gradient(180deg,#0e1722,#172638);margin:12px 0}.reel-wrap:before,.reel-wrap:after{content:"";position:absolute;top:0;bottom:0;width:45px;z-index:2;pointer-events:none}.reel-wrap:before{left:0;background:linear-gradient(90deg,#0e1722,transparent)}.reel-wrap:after{right:0;background:linear-gradient(270deg,#172638,transparent)}.reel-track{height:100%;display:flex;align-items:center;gap:8px;padding:0 10px;will-change:transform;transform:translateX(0)}.reel-item{flex:0 0 91px;height:91px;border:1px solid #34465a;border-radius:11px;background:linear-gradient(150deg,#25384b,#182433);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:5px}.reel-item .item-icon{font-size:30px}.reel-item small{font-size:9px;color:#d8e1ed;line-height:1.15}.reel-pointer{position:absolute;z-index:3;left:50%;top:0;bottom:0;width:0;border-left:2px solid var(--gold);filter:drop-shadow(0 0 5px #f5c451)}.reel-pointer:before{content:"";position:absolute;top:0;left:-7px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:12px solid var(--gold)}.result-panel{padding:15px;border:1px solid #28785d;background:linear-gradient(145deg,#16372e,#142a28);border-radius:14px;margin:12px 0}.result-icon{font-size:48px;margin:3px}.result-name{font-size:20px;font-weight:900}.result-value{color:var(--gold);font-weight:900;margin-top:4px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.primary,.secondary{border-radius:11px;padding:12px 14px;font-weight:850;cursor:pointer}.primary{border:0;background:linear-gradient(100deg,#24b47e,#36d69c);color:#06251a}.secondary{border:1px solid var(--line);background:var(--panel2);color:var(--text)}button:disabled{opacity:.4;cursor:not-allowed}.case-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:15px}.case{border:1px solid var(--line);background:linear-gradient(145deg,#1c2b3c,#131d2a);border-radius:14px;padding:12px;text-align:left;color:var(--text);cursor:pointer;min-height:96px}.case.selected{border:2px solid var(--accent);padding:11px;background:linear-gradient(145deg,#203c3b,#172b31)}.case .emoji{font-size:25px}.case b{display:block;margin:4px 0 2px;font-size:13px}.case small{color:var(--muted);font-size:11px}.contents{margin-top:14px}.contents-title{font-size:12px;color:var(--muted);margin-bottom:8px}.drop-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.drop-card{background:#1a2736;border:1px solid #2b3c50;border-radius:10px;padding:9px;text-align:left;min-height:64px}.drop-card .item-icon{font-size:21px;float:left;margin-right:7px}.drop-card b{font-size:11px;display:block}.drop-card small{font-size:10px;color:var(--muted)}
 .item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;margin:8px 0}.item-main{display:flex;align-items:center;gap:10px;min-width:0}.item-icon{font-size:28px}.item b{display:block}.rarity{font-size:11px;color:var(--muted)}.empty{text-align:center;padding:28px;color:var(--muted);border:1px dashed var(--line);border-radius:12px}.hidden{display:none!important}.note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:17px;text-align:center}
@@ -82,7 +82,7 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 .auth-card .primary{width:100%;margin-top:13px}
 .auth-status{min-height:18px;margin-top:12px;font-size:12px;color:#f5c451;line-height:1.45}
 .auth-small{font-size:10px;color:#8293a8;line-height:1.5;margin-top:14px;text-align:center}
-#usernameStep,#codeStep{display:none}
+#usernameStep{display:none}
 
 </style></head>
 <body>
@@ -90,35 +90,48 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
  <div class="auth-card">
   <div class="auth-logo">🐍 Case<span>Up</span></div>
   <div class="auth-sub">ТВОЙ ИГРОВОЙ ПРОФИЛЬ</div>
-  <div id="phoneStep">
-   <h2>Вход или регистрация</h2>
-   <p class="auth-help">Укажи номер телефона. Мы отправим SMS-код для подтверждения. Номер не показывается другим игрокам.</p>
-   <label for="authPhone">Номер телефона</label>
-   <input id="authPhone" type="tel" autocomplete="tel" placeholder="+370..." />
-   <button class="primary" id="sendCodeButton" type="button">Получить код по SMS</button>
+  <div id="loginStep">
+   <h2>Вход в CaseUp</h2>
+   <p class="auth-help">Войди по электронной почте и паролю или создай новый профиль.</p>
+   <label for="authEmail">Электронная почта</label>
+   <input id="authEmail" type="email" autocomplete="email" placeholder="name@example.com" />
+   <label for="authPassword">Пароль</label>
+   <input id="authPassword" type="password" autocomplete="current-password" minlength="8" placeholder="Не менее 8 символов" />
+   <button class="primary" id="loginButton" type="button">Войти</button>
+   <button class="account-button" id="showRegisterButton" type="button" style="width:100%;margin-top:9px">Создать аккаунт</button>
   </div>
-  <div id="codeStep">
-   <h2>Подтверди номер</h2>
-   <p class="auth-help">Введи код из SMS, отправленного на указанный номер.</p>
-   <label for="authCode">Код из SMS</label>
-   <input id="authCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Код подтверждения" />
-   <button class="primary" id="verifyCodeButton" type="button">Подтвердить</button>
-  </div>
-  <div id="usernameStep">
-   <h2>Придумай игровой логин</h2>
-   <p class="auth-help">Это имя будут видеть другие игроки. Номер телефона останется скрытым. Логин должен быть уникальным (3–16 символов: латиница, цифры и _).</p>
+  <div id="registerStep" style="display:none">
+   <h2>Регистрация</h2>
+   <p class="auth-help">Укажи почту, придумай пароль и игровой логин.</p>
+   <label for="registerEmail">Электронная почта</label>
+   <input id="registerEmail" type="email" autocomplete="email" placeholder="name@example.com" />
+   <label for="registerPassword">Пароль</label>
+   <input id="registerPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Не менее 8 символов" />
    <label for="authUsername">Игровой логин</label>
-   <input id="authUsername" autocomplete="username" maxlength="16" placeholder="Например, Player_01" />
+   <input id="authUsername" autocomplete="username" maxlength="16" placeholder="3–16 символов: латиница, цифры, _" />
+   <button class="primary" id="registerButton" type="button">Зарегистрироваться</button>
+   <button class="account-button" id="showLoginButton" type="button" style="width:100%;margin-top:9px">У меня уже есть аккаунт</button>
+  </div>
+  <div id="verifyStep" style="display:none">
+   <h2>Подтверди почту</h2>
+   <p class="auth-help">Мы отправили письмо со ссылкой подтверждения. Перейди по ней, затем вернись сюда и нажми «Я подтвердил почту».</p>
+   <button class="primary" id="refreshVerificationButton" type="button">Я подтвердил почту</button>
+   <button class="account-button" id="resendVerificationButton" type="button" style="width:100%;margin-top:9px">Отправить письмо ещё раз</button>
+  </div>
+  <div id="usernameStep" style="display:none">
+   <h2>Заверши профиль</h2>
+   <p class="auth-help">Игровой логин должен быть уникальным (3–16 символов: латиница, цифры и _).</p>
+   <label for="authUsername">Игровой логин</label>
+   <input id="usernameFinal" autocomplete="username" maxlength="16" placeholder="Например, Player_01" />
    <button class="primary" id="createProfileButton" type="button">Создать профиль</button>
   </div>
   <div id="authStatus" class="auth-status" role="status"></div>
-  <div class="auth-small">CaseUp использует виртуальные апы. Они не имеют денежной стоимости и не выводятся в деньги.<br>Для SMS может применяться лимит Firebase.</div>
-  <div id="recaptcha-container"></div>
+  <div class="auth-small">CaseUp использует виртуальные апы. Они не имеют денежной стоимости и не выводятся в деньги. Не используй пароль от других сайтов.</div>
  </div>
 </div>
 
 <main class="wrap">
-<header class="top"><div class="brand" id="brandHome" role="button" tabindex="0" aria-label="На главную"><div class="logo">🐍 Case<span>Up</span></div><div class="sub">VIRTUAL CASE OPENING</div></div><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end"><div id="accountBar"><span class="account-name" id="playerName"></span><button class="account-button" id="logoutButton" type="button">Выйти</button></div><div class="balance-pill"><span class="coin">🪙</span><span class="balance-value" id="balance">500</span></div></div></header>
+<header class="top"><div class="brand" id="brandHome" role="button" tabindex="0" aria-label="На главную"><div class="logo">🐍 Case<span>Up</span></div><div class="sub">VIRTUAL CASE OPENING</div></div><div style="display:flex;align-items:center;gap:7px;justify-content:flex-end;flex-shrink:0"><div class="balance-pill"><span class="coin">🪙</span><span class="balance-value" id="balance">500</span></div><button class="profile-shortcut" id="profileShortcut" type="button" aria-label="Открыть профиль" title="Профиль"><span id="headerAvatar" class="avatar-mark">CU</span></button></div></header>
 <nav class="nav"><button class="active" data-tab="cases">📦 Кейсы</button><button data-tab="upgrade">⚡ Апгрейд</button><button data-tab="treasure">🪎 Клад</button><button data-tab="bonus">🎁 Бонус</button><button data-tab="inventory">🎒 Инвентарь</button></nav>
 <section id="cases"><div class="section case-stage"><div class="stage-kicker">МЕНЮ ОТКРЫТИЯ</div><div class="case-title" id="caseName">⚪️ Обычный</div><div class="price" id="casePrice">100 апов</div><div class="case-description">Выбери кейс ниже и попробуй получить предмет</div>
 <div id="reelWrap" class="reel-wrap"><div id="reelTrack" class="reel-track"></div><div class="reel-pointer"></div></div>
@@ -137,6 +150,7 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 <div class="treasure-form" style="margin-top:18px"><div><label class="muted" for="treasureStake">💰Ваша ставка:</label><input class="treasure-input" id="treasureStake" type="number" min="1" step="1" placeholder="Например, 100" inputmode="numeric"></div>
 <button class="primary" id="digButton">🪎 Искать клад</button><div id="treasureHint" class="muted" style="text-align:center"></div></div>
 </div></section>
+<section id="profile" class="hidden"><h2>👤 Профиль</h2><div class="section profile-card"><div class="profile-avatar-large" id="profileAvatarLarge">CU</div><div class="profile-username" id="profileNickname">@игрок</div><div class="profile-email" id="profileEmail"></div><div class="muted" style="margin-top:17px">Выбери аватарку</div><div class="avatar-options" id="avatarOptions"><button class="avatar-option" data-avatar="default" aria-label="CaseUp">CU</button><button class="avatar-option" data-avatar="🐍">🐍</button><button class="avatar-option" data-avatar="🎮">🎮</button><button class="avatar-option" data-avatar="💎">💎</button><button class="avatar-option" data-avatar="🚀">🚀</button><button class="avatar-option" data-avatar="👑">👑</button></div><div class="profile-actions"><button class="secondary" id="profileLogout" type="button">Выйти из аккаунта</button></div></div></section>
 <div class="note">CaseUp — развлекательная игра с виртуальными апами и предметами. Апы нельзя купить или вывести за реальные деньги.<br>Прогресс профиля синхронизируется через облако Firebase.</div>
 </main>
 <div id="rareReveal" class="rare-reveal hidden" aria-hidden="true">
@@ -183,7 +197,7 @@ function fmt(n){return Math.round(n).toLocaleString('ru-RU')}
 function iconFor(name,rarity=''){const s=(name+' '+rarity).toLowerCase();if(/амулет/.test(s))return'🔮';if(/меч/.test(s))return'⚔️';if(/броник/.test(s))return'🛡️';if(/руна/.test(s))return'✨';if(/алмаз|сапфир|изумруд|аметист|нефрит|камень/.test(s))return'💎';if(/золото|руда/.test(s))return'🪙';if(/вода/.test(s))return'💧';return'⭐'}
 function allTargets(value){const a=[];CASES.forEach(c=>c.drops.forEach(d=>{if(d[2]>value)a.push({rarity:d[0],name:d[1],value:d[2]})}));const seen=new Set();return a.sort((x,y)=>x.value-y.value).filter(x=>{const k=x.rarity+'|'+x.name;if(seen.has(k))return false;seen.add(k);return true})}
 function weightedDrop(drops){let r=Math.random()*100,s=0;for(const d of drops){s+=d[3];if(r<s)return d}return drops[drops.length-1]}
-function showTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['cases','inventory','upgrade','bonus','treasure'].forEach(x=>$(x).classList.toggle('hidden',x!==tab));if(tab==='upgrade')renderUpgrade();window.scrollTo({top:0,behavior:'smooth'})}
+function showTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['cases','inventory','upgrade','bonus','treasure','profile'].forEach(x=>$(x).classList.toggle('hidden',x!==tab));if(tab==='upgrade')renderUpgrade();if(tab==='profile'&&window.caseupRenderProfile)window.caseupRenderProfile();window.scrollTo({top:0,behavior:'smooth'})}
 function render(){ $('balance').textContent=fmt(state.balance);renderCases();renderInventory();renderUpgrade();const wait=86400000-(Date.now()-(state.bonusAt||0));$('claim').disabled=wait>0;$('bonusStatus').textContent=wait>0?'Следующий бонус через '+Math.floor(wait/3600000)+' ч. '+Math.floor(wait%3600000/60000)+' мин.':'Бонус доступен!'}
 function renderCases(){const c=CASES[selected];$('caseGrid').innerHTML=CASES.map((x,i)=>`<button class="case ${i===selected?'selected':''}" data-case="${i}"><div class="emoji">${x.name.split(' ')[0]}</div><b>${x.name.substring(x.name.indexOf(' ')+1)}</b><small>${fmt(x.price)} апов</small></button>`).join('');$('caseName').textContent=c.name;$('casePrice').textContent=fmt(c.price)+' апов';$('open').disabled=spinning||state.balance<c.price;$('fastCaseToggle').disabled=spinning;$('caseContents').innerHTML=c.drops.map(d=>`<div class="drop-card"><span class="item-icon">${iconFor(d[1],d[0])}</span><b>${d[0]} ${d[1]}</b><small>${fmt(d[2])} апов · ${d[3]}%</small></div>`).join('');if(!spinning&&!lastDrop){$('reelWrap').classList.remove('hidden');$('caseResult').classList.add('hidden')}}
 function renderInventory(){ $('items').innerHTML=state.inventory.length?state.inventory.map((it,i)=>`<div class="item"><div class="item-main"><span class="item-icon">${iconFor(it.name,it.rarity)}</span><div><span class="rarity">${it.rarity}</span><b>${it.name}</b><span class="muted">${fmt(it.value)} апов</span></div></div><button class="secondary" data-sell="${i}">Продать</button></div>`).join(''):'<div class="empty">Инвентарь пока пуст. Открой первый кейс 📦</div>'}
@@ -398,7 +412,8 @@ render();
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
 import {
-  getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, signOut,
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  onAuthStateChanged, signOut, sendEmailVerification, reload,
   setPersistence, browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 import {
@@ -422,192 +437,171 @@ auth.languageCode = "ru";
 await setPersistence(auth, browserLocalPersistence);
 
 const $ = id => document.getElementById(id);
-let confirmation = null;
-let recaptcha = null;
 let currentUser = null;
 let cloudTimer = null;
 let currentUsername = "";
+let profileSetupUser = null;
+let pendingUsername = "";
+let currentAvatar = "default";
+const AVATARS = ["default", "🐍", "🎮", "💎", "🚀", "👑"];
+function avatarHTML(value){ return value === "default" ? '<span class="avatar-mark">CU</span>' : value; }
+function paintAvatar(){ $("headerAvatar").innerHTML = avatarHTML(currentAvatar); $("profileAvatarLarge").innerHTML = avatarHTML(currentAvatar); document.querySelectorAll("[data-avatar]").forEach(b=>b.classList.toggle("selected",b.dataset.avatar===currentAvatar)); }
+window.caseupRenderProfile = function(){ $("profileNickname").textContent = currentUsername ? "@"+currentUsername : "Профиль"; $("profileEmail").textContent = currentUser?.email || ""; paintAvatar(); };
 
 function status(message, isError=false) {
   $("authStatus").textContent = message;
   $("authStatus").style.color = isError ? "#f0717d" : "#f5c451";
 }
 function showStep(step) {
-  $("phoneStep").style.display = step === "phone" ? "block" : "none";
-  $("codeStep").style.display = step === "code" ? "block" : "none";
-  $("usernameStep").style.display = step === "username" ? "block" : "none";
+  for (const id of ["loginStep", "registerStep", "verifyStep", "usernameStep"]) {
+    $(id).style.display = id === step ? "block" : "none";
+  }
 }
 function explainError(error) {
   const code = error?.code || "";
   const messages = {
-    "auth/invalid-phone-number":"Проверь номер телефона и укажи его в международном формате, например +370...",
+    "auth/invalid-email":"Проверь адрес электронной почты.",
+    "auth/email-already-in-use":"Аккаунт с такой почтой уже существует. Попробуй войти.",
+    "auth/weak-password":"Пароль слишком простой. Используй не менее 8 символов.",
+    "auth/invalid-credential":"Неверная почта или пароль.",
+    "auth/user-not-found":"Аккаунт не найден. Проверь почту или зарегистрируйся.",
+    "auth/wrong-password":"Неверная почта или пароль.",
     "auth/too-many-requests":"Слишком много попыток. Попробуй позже.",
-    "auth/quota-exceeded":"Лимит отправки SMS Firebase исчерпан. Попробуй позже.",
-    "auth/invalid-verification-code":"Неверный SMS-код. Проверь его и попробуй ещё раз.",
-    "auth/code-expired":"Срок действия кода истёк. Запроси новый.",
-    "auth/captcha-check-failed":"Не удалось пройти проверку reCAPTCHA. Обнови страницу и попробуй снова.",
-    "auth/billing-not-enabled":"Для отправки SMS может потребоваться подключить платёжный план Firebase."
+    "auth/network-request-failed":"Проблема с интернет-соединением. Попробуй ещё раз."
   };
-  return messages[code] || ("Не получилось выполнить действие: " + (error?.message || code || "неизвестная ошибка"));
+  return messages[code] || (error?.message || "Не получилось выполнить действие.");
 }
-async function ensureRecaptcha() {
-  if (recaptcha) {
-    try { recaptcha.clear(); } catch {}
-    recaptcha = null;
-  }
-  recaptcha = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
-  await recaptcha.render();
-  return recaptcha;
-}
-function validUsername(value) {
-  return /^[A-Za-z0-9_]{3,16}$/.test(value);
-}
+function validUsername(value) { return /^[A-Za-z0-9_]{3,16}$/.test(value); }
 async function createOrLoadProfile(user) {
+  currentUser = user;
+  if (!user.emailVerified) {
+    showStep("verifyStep");
+    $("authScreen").style.display = "flex";
+    status("Сначала подтверди электронную почту по ссылке из письма.");
+    return;
+  }
   const userRef = doc(db, "users", user.uid);
   const snap = await getDoc(userRef);
   if (snap.exists() && snap.data().username) {
     const data = snap.data();
     currentUsername = data.username;
+    currentAvatar = AVATARS.includes(data.avatar) ? data.avatar : "default";
+    paintAvatar();
     if (data.state && window.caseupApplyCloudState) window.caseupApplyCloudState(data.state);
     $("playerName").textContent = "@" + currentUsername;
+    window.caseupRenderProfile();
     $("authScreen").style.display = "none";
     status("");
     return;
   }
-  currentUser = user;
-  showStep("username");
-  status("Номер подтверждён! Теперь придумай игровой логин.");
+  profileSetupUser = user;
+  showStep("usernameStep");
+  $("authScreen").style.display = "flex";
+  status("Почта подтверждена! Теперь выбери игровой логин.");
 }
 async function saveNewProfile() {
-  const raw = $("authUsername").value.trim();
-  if (!validUsername(raw)) {
-    status("Логин: 3–16 символов, только латиница, цифры и _. ", true);
-    return;
-  }
-  const normalized = raw.toLowerCase();
-  const user = currentUser || auth.currentUser;
-  if (!user) { status("Сначала подтверди номер телефона.", true); return; }
+  const raw = $("usernameFinal").value.trim() || pendingUsername;
+  if (!validUsername(raw)) { status("Логин: 3–16 символов, только латиница, цифры и _. ", true); return; }
+  const user = profileSetupUser || auth.currentUser;
+  if (!user || !user.emailVerified) { status("Сначала подтверди почту.", true); return; }
   $("createProfileButton").disabled = true;
   try {
     const userRef = doc(db, "users", user.uid);
-    const nameRef = doc(db, "usernames", normalized);
+    const nameRef = doc(db, "usernames", raw.toLowerCase());
     const localState = JSON.parse(localStorage.getItem("caseup_player_v1") || '{"balance":500,"inventory":[],"bonusAt":0}');
     await runTransaction(db, async transaction => {
       const nameSnap = await transaction.get(nameRef);
-      if (nameSnap.exists() && nameSnap.data().uid !== user.uid) {
-        throw new Error("Этот логин уже занят. Придумай другой.");
-      }
+      if (nameSnap.exists() && nameSnap.data().uid !== user.uid) throw new Error("Этот логин уже занят. Придумай другой.");
       const userSnap = await transaction.get(userRef);
       const old = userSnap.exists() ? userSnap.data() : {};
       transaction.set(nameRef, { uid: user.uid });
-      transaction.set(userRef, {
-        username: raw,
-        state: old.state || localState,
-        createdAt: old.createdAt || serverTimestamp(),
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+      transaction.set(userRef, { username: raw, avatar: old.avatar || "default", state: old.state || localState, createdAt: old.createdAt || serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
     });
     currentUsername = raw;
+    currentAvatar = "default";
+    paintAvatar();
     const profile = await getDoc(userRef);
-    if (profile.exists() && profile.data().state && window.caseupApplyCloudState) {
-      window.caseupApplyCloudState(profile.data().state);
-    }
+    if (profile.exists() && profile.data().state && window.caseupApplyCloudState) window.caseupApplyCloudState(profile.data().state);
     $("playerName").textContent = "@" + currentUsername;
+    window.caseupRenderProfile();
     $("authScreen").style.display = "none";
     status("");
-  } catch (error) {
-    status(error.message || explainError(error), true);
-  } finally {
-    $("createProfileButton").disabled = false;
-  }
+  } catch (error) { status(error.message || explainError(error), true); }
+  finally { $("createProfileButton").disabled = false; }
 }
-$("sendCodeButton").addEventListener("click", async () => {
-  const phone = $("authPhone").value.trim().replace(/[()\s-]/g, "");
-  if (!/^\+[1-9]\d{7,14}$/.test(phone)) {
-    status("Введи номер в международном формате, начиная с +. Например: +370...", true);
-    return;
-  }
-  $("sendCodeButton").disabled = true;
-  status("Подготавливаем проверку номера…");
-  try {
-    const verifier = await ensureRecaptcha();
-    confirmation = await signInWithPhoneNumber(auth, phone, verifier);
-    showStep("code");
-    status("SMS отправлено. Введи полученный код.");
-  } catch (error) {
-    status(explainError(error), true);
-    if (recaptcha) { try { recaptcha.clear(); } catch {} recaptcha = null; }
-  } finally {
-    $("sendCodeButton").disabled = false;
-  }
+
+$("showRegisterButton").addEventListener("click", () => { showStep("registerStep"); status(""); });
+$("showLoginButton").addEventListener("click", () => { showStep("loginStep"); status(""); });
+$("loginButton").addEventListener("click", async () => {
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
+  if (!email || !password) { status("Введи почту и пароль.", true); return; }
+  $("loginButton").disabled = true;
+  try { const result = await signInWithEmailAndPassword(auth, email, password); await result.user.reload(); await createOrLoadProfile(result.user); }
+  catch (error) { status(explainError(error), true); }
+  finally { $("loginButton").disabled = false; }
 });
-$("verifyCodeButton").addEventListener("click", async () => {
-  const code = $("authCode").value.trim();
-  if (!confirmation || !/^\d{4,8}$/.test(code)) {
-    status("Введи код из SMS.", true);
-    return;
-  }
-  $("verifyCodeButton").disabled = true;
+$("registerButton").addEventListener("click", async () => {
+  const email = $("registerEmail").value.trim();
+  const password = $("registerPassword").value;
+  const username = $("authUsername").value.trim();
+  if (!email || !password) { status("Введи почту и пароль.", true); return; }
+  if (password.length < 8) { status("Пароль должен содержать не менее 8 символов.", true); return; }
+  if (!validUsername(username)) { status("Логин: 3–16 символов, только латиница, цифры и _. ", true); return; }
+  $("registerButton").disabled = true;
   try {
-    const result = await confirmation.confirm(code);
-    currentUser = result.user;
-    await createOrLoadProfile(result.user);
-  } catch (error) {
-    status(explainError(error), true);
-  } finally {
-    $("verifyCodeButton").disabled = false;
-  }
+    const credential = await createUserWithEmailAndPassword(auth, email, password);
+    profileSetupUser = credential.user;
+    await sendEmailVerification(credential.user);
+    pendingUsername = username;
+    showStep("verifyStep");
+    status("Письмо отправлено. Подтверди адрес, затем нажми кнопку ниже.");
+  } catch (error) { status(explainError(error), true); }
+  finally { $("registerButton").disabled = false; }
+});
+$("refreshVerificationButton").addEventListener("click", async () => {
+  const user = auth.currentUser;
+  if (!user) { status("Сначала войди в аккаунт.", true); return; }
+  try { await reload(user); const fresh = auth.currentUser; await fresh.reload(); if (!fresh.emailVerified) { status("Пока не видим подтверждение. Открой письмо и нажми ссылку.", true); return; } profileSetupUser = fresh; $("usernameFinal").value = pendingUsername; showStep("usernameStep"); status("Почта подтверждена! Заверши создание профиля."); }
+  catch (error) { status(explainError(error), true); }
+});
+$("resendVerificationButton").addEventListener("click", async () => {
+  try { if (!auth.currentUser) throw new Error("Сначала войди в аккаунт."); await sendEmailVerification(auth.currentUser); status("Письмо отправлено ещё раз."); }
+  catch (error) { status(explainError(error), true); }
 });
 $("createProfileButton").addEventListener("click", saveNewProfile);
-$("logoutButton").addEventListener("click", async () => {
-  try {
-    await signOut(auth);
-    currentUsername = "";
-    $("playerName").textContent = "";
-    $("authPhone").value = "";
-    $("authCode").value = "";
-    $("authUsername").value = "";
-    showStep("phone");
-    $("authScreen").style.display = "flex";
-    status("Ты вышел из профиля.");
-  } catch (error) {
-    status(explainError(error), true);
-  }
-});
+async function logoutFromProfile() {
+  try { await signOut(auth); currentUsername = ""; currentAvatar = "default"; profileSetupUser = null; showStep("loginStep"); $("authScreen").style.display = "flex"; status("Ты вышел из профиля."); }
+  catch (error) { status(explainError(error), true); }
+}
+$("profileShortcut").addEventListener("click", () => showTab("profile"));
+$("profileLogout").addEventListener("click", logoutFromProfile);
+document.querySelectorAll("[data-avatar]").forEach(button => button.addEventListener("click", async () => {
+  const chosen = button.dataset.avatar;
+  if (!AVATARS.includes(chosen) || !currentUser || !currentUsername) return;
+  currentAvatar = chosen;
+  paintAvatar();
+  try { await setDoc(doc(db, "users", currentUser.uid), { avatar: chosen, updatedAt: serverTimestamp() }, { merge: true }); }
+  catch (error) { status("Не удалось сохранить аватарку. Проверь интернет.", true); }
+}));
 
 window.caseupCloud = {
   saveState(value) {
-    if (!auth.currentUser || !currentUsername) return;
+    if (!auth.currentUser || !auth.currentUser.emailVerified || !currentUsername) return;
     clearTimeout(cloudTimer);
     const snapshot = JSON.parse(JSON.stringify(value));
     cloudTimer = setTimeout(async () => {
-      try {
-        await setDoc(doc(db, "users", auth.currentUser.uid), {
-          state: snapshot,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-      } catch (error) {
-        console.error("CaseUp cloud save failed:", error);
-        status("Не удалось сохранить прогресс в облако. Проверь подключение.", true);
-      }
+      try { await setDoc(doc(db, "users", auth.currentUser.uid), { state: snapshot, updatedAt: serverTimestamp() }, { merge: true }); }
+      catch (error) { console.error("CaseUp cloud save failed:", error); status("Не удалось сохранить прогресс в облако. Проверь подключение.", true); }
     }, 450);
   }
 };
 
 onAuthStateChanged(auth, async user => {
   currentUser = user;
-  if (!user) {
-    currentUsername = "";
-    $("playerName").textContent = "";
-    $("authScreen").style.display = "flex";
-    showStep("phone");
-    return;
-  }
-  try {
-    await createOrLoadProfile(user);
-  } catch (error) {
-    status(explainError(error), true);
-  }
+  if (!user) { currentUsername = ""; $("playerName").textContent = ""; $("authScreen").style.display = "flex"; showStep("loginStep"); return; }
+  try { await createOrLoadProfile(user); }
+  catch (error) { status(explainError(error), true); }
 });
 </script>
 
