@@ -115,7 +115,7 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 <body>
 <div class="auth-screen" id="authScreen">
  <div class="auth-card">
-  <div id="authLoading" style="text-align:center;padding:24px 8px"><div class="auth-logo">🐍 Case<span>Up</span></div><div class="auth-sub">ПРОВЕРЯЕМ ТВОЙ ПРОФИЛЬ…</div><p class="auth-help">Подожди немного, загружаем сохранённый прогресс.</p></div>
+  <div id="authLoading" style="text-align:center;padding:24px 8px"><div class="auth-logo">🐍 Case<span>Up</span></div><div class="auth-sub">ПРОВЕРЯЕМ ТВОЙ ПРОФИЛЬ…</div><p class="auth-help">Подожди немного, загружаем сохранённый прогресс.</p><button class="primary" id="retryProfileButton" type="button" style="display:none;margin-top:12px">Повторить загрузку</button></div>
   <div class="auth-logo">🐍 Case<span>Up</span></div>
   <div class="auth-sub">ТВОЙ ИГРОВОЙ ПРОФИЛЬ</div>
   <div id="loginStep" style="display:none">
@@ -238,7 +238,7 @@ function save(){
  renderStats();
 }
 function renderStats(){ensureStats();const st=state.stats;$('statTotalWon').textContent=fmt(st.totalWon)+' апов';$('statCasesOpened').textContent=fmt(st.casesOpened);$('statGamesPlayed').textContent=fmt(st.gamesPlayed)}
-window.caseupRenderLeaderboard=function(rows){const host=$('leaderboardList');if(!host)return;host.innerHTML=(rows||[]).slice(0,5).map((r,i)=>`<div class="leaderboard-row"><span class="rank">${i+1}.</span><span class="player">@${String(r.username||'Игрок').replace(/[<>]/g,'')}</span><span class="score">${fmt(r.totalWon||0)} апов</span></div>`).join('')};
+window.caseupRenderLeaderboard=function(rows,error=''){const host=$('leaderboardList');if(!host)return;if(error&&(!rows||!rows.length)){host.innerHTML=`<div class="empty">Не удалось загрузить таблицу лидеров. ${String(error).replace(/[<>]/g,'')}</div>`;return}const warning=error?`<div class="empty">${String(error).replace(/[<>]/g,'')}</div>`:'';if(!rows||!rows.length){host.innerHTML=warning||'<div class="empty">Пока нет результатов за сегодня. Будь первым!</div>';return}host.innerHTML=warning+rows.slice(0,5).map((r,i)=>`<div class="leaderboard-row"><span class="rank">${i+1}.</span><span class="player">@${String(r.username||'Игрок').replace(/[<>]/g,'')}</span><span class="score">${fmt(r.totalWon||0)} апов</span></div>`).join('')};
 window.caseupApplyCloudState=function(remote){
  if(!remote||typeof remote.balance!=='number'||!Array.isArray(remote.inventory))return;
  state={...remote};ensureStats();
@@ -493,7 +493,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 auth.languageCode = "ru";
-await setPersistence(auth, browserLocalPersistence);
+try {
+  await withTimeout(setPersistence(auth, browserLocalPersistence), 8000, "Не удалось быстро настроить сохранение входа.");
+} catch (error) {
+  console.warn("Firebase persistence setup warning:", error);
+}
 
 const $ = id => document.getElementById(id);
 let currentUser = null;
@@ -532,6 +536,13 @@ function explainError(error) {
   };
   return messages[code] || (error?.message || "Не получилось выполнить действие.");
 }
+function withTimeout(promise, ms, message) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(message)), ms); })
+  ]).finally(() => clearTimeout(timer));
+}
 function validUsername(value) { return /^[A-Za-z0-9_]{3,16}$/.test(value); }
 async function createOrLoadProfile(user) {
   currentUser = user;
@@ -549,11 +560,16 @@ async function createOrLoadProfile(user) {
     currentAvatar = AVATARS.includes(data.avatar) ? data.avatar : "default";
     currentAvatarImage = typeof data.avatarImage === "string" && data.avatarImage.startsWith("data:image/") ? data.avatarImage : "";
     paintAvatar();
-    if (data.state && window.caseupApplyCloudState) window.caseupApplyCloudState(data.state);
+    if (!data.state || typeof data.state.balance !== "number" || !Array.isArray(data.state.inventory)) {
+      throw new Error("В облачном профиле не найдено сохранение игры. Доступ к временному профилю заблокирован.");
+    }
+    if (window.caseupApplyCloudState) window.caseupApplyCloudState(data.state);
     window.caseupRenderProfile();
+    // Таблица синхронизируется отдельно: её ошибка не должна блокировать вход в игру.
+    if (window.caseupCloud?.syncLeaderboard) await window.caseupCloud.syncLeaderboard(data.state);
+    if (window.caseupCloud?.refreshLeaderboard) await window.caseupCloud.refreshLeaderboard();
     $("authScreen").style.display = "none";
     status("");
-    if(window.caseupCloud?.refreshLeaderboard)window.caseupCloud.refreshLeaderboard();
     return;
   }
   profileSetupUser = user;
@@ -667,58 +683,98 @@ $("avatarFileInput").addEventListener("change", async e => {
   finally{e.target.value=""}
 });
 
+let leaderboardWriteError = "";
 window.caseupCloud = {
+  async syncLeaderboard(snapshot) {
+    try {
+      const user = auth.currentUser;
+      if (!user || !user.emailVerified || !currentUsername || !snapshot) return;
+      const stats = snapshot.stats || {};
+      const today = moscowDayKey();
+      if (stats.dailyDate !== today || Number(stats.dailyWon) <= 0) return;
+      await setDoc(doc(db, "dailyLeaderboards", today, "players", user.uid), {
+        username: currentUsername,
+        totalWon: Number(stats.dailyWon) || 0,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+      leaderboardWriteError = "";
+    } catch (error) {
+      leaderboardWriteError = "Не удалось записать результат. Проверьте Firestore Rules для dailyLeaderboards/{дата}/players.";
+      console.error("Leaderboard sync failed:", error);
+    }
+  },
   saveState(value) {
     if (!auth.currentUser || !auth.currentUser.emailVerified || !currentUsername) return;
     clearTimeout(cloudTimer);
     const snapshot = JSON.parse(JSON.stringify(value));
     cloudTimer = setTimeout(async () => {
       try {
-        await setDoc(doc(db, "users", auth.currentUser.uid), { state: snapshot, updatedAt: serverTimestamp() }, { merge: true });
-        const stats=snapshot.stats||{};const today=moscowDayKey();
-        if(Number(stats.dailyWon)>0&&stats.dailyDate===today){
-          await setDoc(doc(db,"dailyLeaderboards",today,"players",auth.currentUser.uid),{username:currentUsername,totalWon:Number(stats.dailyWon)||0,updatedAt:serverTimestamp()},{merge:true});
-        }
+        const user = auth.currentUser;
+        if (!user || !user.emailVerified || !currentUsername) return;
+        await setDoc(doc(db, "users", user.uid), { state: snapshot, updatedAt: serverTimestamp() }, { merge: true });
+        await this.syncLeaderboard(snapshot);
+        await this.refreshLeaderboard();
+      } catch (error) {
+        console.error("CaseUp cloud save failed:", error);
+        status("Не удалось сохранить прогресс в облако. Проверь подключение.", true);
       }
-      catch (error) { console.error("CaseUp cloud save failed:", error); status("Не удалось сохранить прогресс в облако. Проверь подключение.", true); }
     }, 450);
   },
-  async refreshLeaderboard(){
-    try{
-      const today=moscowDayKey();
-      const q=query(collection(db,"dailyLeaderboards",today,"players"),orderBy("totalWon","desc"),limit(5));
-      const snap=await getDocs(q);const rows=snap.docs.map(d=>d.data());
-      if(window.caseupRenderLeaderboard)window.caseupRenderLeaderboard(rows);
-    }catch(error){console.error("Leaderboard load failed:",error);}
+  async refreshLeaderboard() {
+    try {
+      const today = moscowDayKey();
+      const q = query(collection(db, "dailyLeaderboards", today, "players"), orderBy("totalWon", "desc"), limit(5));
+      const snap = await getDocs(q);
+      const rows = snap.docs.map(d => d.data());
+      if (window.caseupRenderLeaderboard) window.caseupRenderLeaderboard(rows, leaderboardWriteError);
+      return rows;
+    } catch (error) {
+      console.error("Leaderboard load failed:", error);
+      if (window.caseupRenderLeaderboard) window.caseupRenderLeaderboard([], leaderboardWriteError || "Проверьте интернет и правила доступа Firestore.");
+      return null;
+    }
   }
 };
 
+let authCallbackRun = 0;
+async function loadSignedInProfile(user) {
+  const run = ++authCallbackRun;
+  $("authScreen").style.display = "flex";
+  $("authLoading").style.display = "block";
+  $("authLoading").querySelector(".auth-help").textContent = "Подожди немного, загружаем сохранённый прогресс.";
+  $("retryProfileButton").style.display = "none";
+  for (const id of ["loginStep", "registerStep", "verifyStep", "usernameStep"]) $(id).style.display = "none";
+  try {
+    await withTimeout(createOrLoadProfile(user), 15000, "Загрузка профиля заняла слишком много времени. Проверь интернет и попробуй ещё раз.");
+    if (run === authCallbackRun) $("retryProfileButton").style.display = "none";
+  } catch (error) {
+    if (run !== authCallbackRun) return;
+    $("authScreen").style.display = "flex";
+    $("authLoading").style.display = "block";
+    $("authLoading").querySelector(".auth-help").textContent = explainError(error);
+    $("retryProfileButton").style.display = "block";
+    console.error("CaseUp profile load failed:", error);
+  }
+}
+$("retryProfileButton").addEventListener("click", () => {
+  const user = auth.currentUser;
+  if (user) loadSignedInProfile(user);
+});
 onAuthStateChanged(auth, async user => {
   currentUser = user;
-  // Пока Firebase не подтвердил сессию и не загрузил профиль, игровой интерфейс
-  // остаётся полностью перекрыт экраном загрузки. Локальные 500 апов не доступны.
-  $("authScreen").style.display = "flex";
   if (!user) {
+    authCallbackRun++;
     currentUsername = "";
     currentAvatar = "default";
     currentAvatarImage = "";
     profileSetupUser = null;
+    $("authScreen").style.display = "flex";
+    $("retryProfileButton").style.display = "none";
     showStep("loginStep");
     status("");
     return;
   }
-  $("authLoading").style.display = "block";
-  for (const id of ["loginStep", "registerStep", "verifyStep", "usernameStep"]) $(id).style.display = "none";
-  try {
-    await createOrLoadProfile(user);
-  } catch (error) {
-    // Не показываем временный локальный профиль и не разрешаем играть,
-    // если облачный профиль не удалось загрузить.
-    $("authScreen").style.display = "flex";
-    $("authLoading").style.display = "block";
-    $("authLoading").querySelector(".auth-help").textContent = "Не удалось загрузить профиль. Проверь интернет и обнови страницу. " + explainError(error);
-    console.error("CaseUp profile load failed:", error);
-  }
+  await loadSignedInProfile(user);
 });
 </script>
 
