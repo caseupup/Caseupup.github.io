@@ -66,9 +66,59 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 @media(prefers-reduced-motion:reduce){.rare-reveal *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @media(min-width:650px){.wrap{padding:22px 20px 120px}.case-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.drop-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.upgrade-controls{grid-template-columns:1fr 1fr}.case-title{font-size:25px}}
 @media(max-width:380px){.nav button{font-size:10px;letter-spacing:-.4px}.nav{gap:3px;padding:5px}.nav button{padding:7px 0;min-height:43px;height:43px}}
+
+/* Firebase account layer */
+#accountBar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.account-name{font-size:11px;color:#b9c9d9;max-width:125px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.account-button{border:1px solid #35516a;background:#1b2b3b;color:#e8f0f8;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer}
+.auth-screen{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(5,10,17,.94);backdrop-filter:blur(14px);overflow:auto}
+.auth-card{width:min(100%,420px);background:linear-gradient(145deg,#1b2a3b,#111a26);border:1px solid #344b62;border-radius:20px;padding:22px;box-shadow:0 20px 70px #0009}
+.auth-logo{text-align:center;font-size:30px;font-weight:950;letter-spacing:-1px;margin-bottom:4px}.auth-logo span{color:var(--accent)}
+.auth-sub{text-align:center;color:var(--muted);font-size:11px;letter-spacing:1.5px;margin-bottom:20px}
+.auth-card h2{margin:0 0 8px;font-size:19px}.auth-help{font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 15px}
+.auth-card label{display:block;color:#b8c6d6;font-size:11px;font-weight:800;margin:12px 0 6px}
+.auth-card input{width:100%;padding:13px;border-radius:11px;border:1px solid #3a5067;background:#101a27;color:#fff;font-size:16px;outline:none}
+.auth-card input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #31c48d20}
+.auth-card .primary{width:100%;margin-top:13px}
+.auth-status{min-height:18px;margin-top:12px;font-size:12px;color:#f5c451;line-height:1.45}
+.auth-small{font-size:10px;color:#8293a8;line-height:1.5;margin-top:14px;text-align:center}
+#usernameStep,#codeStep{display:none}
+
 </style></head>
-<body><main class="wrap">
-<header class="top"><div class="brand" id="brandHome" role="button" tabindex="0" aria-label="На главную"><div class="logo">🐍 Case<span>Up</span></div><div class="sub">VIRTUAL CASE OPENING</div></div><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end"><div class="balance-pill"><span class="coin">🪙</span><span class="balance-value" id="balance">500</span></div></div></header>
+<body>
+<div class="auth-screen" id="authScreen">
+ <div class="auth-card">
+  <div class="auth-logo">🐍 Case<span>Up</span></div>
+  <div class="auth-sub">ТВОЙ ИГРОВОЙ ПРОФИЛЬ</div>
+  <div id="phoneStep">
+   <h2>Вход или регистрация</h2>
+   <p class="auth-help">Укажи номер телефона. Мы отправим SMS-код для подтверждения. Номер не показывается другим игрокам.</p>
+   <label for="authPhone">Номер телефона</label>
+   <input id="authPhone" type="tel" autocomplete="tel" placeholder="+370..." />
+   <button class="primary" id="sendCodeButton" type="button">Получить код по SMS</button>
+  </div>
+  <div id="codeStep">
+   <h2>Подтверди номер</h2>
+   <p class="auth-help">Введи код из SMS, отправленного на указанный номер.</p>
+   <label for="authCode">Код из SMS</label>
+   <input id="authCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Код подтверждения" />
+   <button class="primary" id="verifyCodeButton" type="button">Подтвердить</button>
+  </div>
+  <div id="usernameStep">
+   <h2>Придумай игровой логин</h2>
+   <p class="auth-help">Это имя будут видеть другие игроки. Номер телефона останется скрытым. Логин должен быть уникальным (3–16 символов: латиница, цифры и _).</p>
+   <label for="authUsername">Игровой логин</label>
+   <input id="authUsername" autocomplete="username" maxlength="16" placeholder="Например, Player_01" />
+   <button class="primary" id="createProfileButton" type="button">Создать профиль</button>
+  </div>
+  <div id="authStatus" class="auth-status" role="status"></div>
+  <div class="auth-small">CaseUp использует виртуальные апы. Они не имеют денежной стоимости и не выводятся в деньги.<br>Для SMS может применяться лимит Firebase.</div>
+  <div id="recaptcha-container"></div>
+ </div>
+</div>
+
+<main class="wrap">
+<header class="top"><div class="brand" id="brandHome" role="button" tabindex="0" aria-label="На главную"><div class="logo">🐍 Case<span>Up</span></div><div class="sub">VIRTUAL CASE OPENING</div></div><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end"><div id="accountBar"><span class="account-name" id="playerName"></span><button class="account-button" id="logoutButton" type="button">Выйти</button></div><div class="balance-pill"><span class="coin">🪙</span><span class="balance-value" id="balance">500</span></div></div></header>
 <nav class="nav"><button class="active" data-tab="cases">📦 Кейсы</button><button data-tab="upgrade">⚡ Апгрейд</button><button data-tab="treasure">🪎 Клад</button><button data-tab="bonus">🎁 Бонус</button><button data-tab="inventory">🎒 Инвентарь</button></nav>
 <section id="cases"><div class="section case-stage"><div class="stage-kicker">МЕНЮ ОТКРЫТИЯ</div><div class="case-title" id="caseName">⚪️ Обычный</div><div class="price" id="casePrice">100 апов</div><div class="case-description">Выбери кейс ниже и попробуй получить предмет</div>
 <div id="reelWrap" class="reel-wrap"><div id="reelTrack" class="reel-track"></div><div class="reel-pointer"></div></div>
@@ -87,7 +137,7 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 <div class="treasure-form" style="margin-top:18px"><div><label class="muted" for="treasureStake">💰Ваша ставка:</label><input class="treasure-input" id="treasureStake" type="number" min="1" step="1" placeholder="Например, 100" inputmode="numeric"></div>
 <button class="primary" id="digButton">🪎 Искать клад</button><div id="treasureHint" class="muted" style="text-align:center"></div></div>
 </div></section>
-<div class="note">CaseUp — развлекательная игра с виртуальными апами и предметами. Апы нельзя купить или вывести за реальные деньги.<br>Прогресс хранится в этом браузере на этом устройстве.</div>
+<div class="note">CaseUp — развлекательная игра с виртуальными апами и предметами. Апы нельзя купить или вывести за реальные деньги.<br>Прогресс профиля синхронизируется через облако Firebase.</div>
 </main>
 <div id="rareReveal" class="rare-reveal hidden" aria-hidden="true">
  <div class="rare-reveal-glow" id="rareRevealGlow"></div>
@@ -119,7 +169,16 @@ const CASES = [{"id":"ordinary","name":"⚪️ Обычный","price":100,"drop
 const KEY='caseup_player_v1', $=id=>document.getElementById(id);
 let state=load(),selected=0,lastDrop=null,chosenTarget=null,spinning=false,upgradeBusy=false,treasureBusy=false,chainCount=0,fastUpgrade=false,fastCase=false;
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&typeof x.balance==='number'&&Array.isArray(x.inventory)){if(x.pendingTreasure){x.balance+=Number(x.pendingTreasure.payout)||0;x.lastTreasureRecovery=Date.now();x.pendingTreasure=null;localStorage.setItem(KEY,JSON.stringify(x))}return x}}catch(e){}return{balance:500,inventory:[],bonusAt:0}}
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function save(){
+ localStorage.setItem(KEY,JSON.stringify(state));
+ if(window.caseupCloud&&window.caseupCloud.saveState)window.caseupCloud.saveState(state);
+}
+window.caseupApplyCloudState=function(remote){
+ if(!remote||typeof remote.balance!=='number'||!Array.isArray(remote.inventory))return;
+ state={...remote};
+ localStorage.setItem(KEY,JSON.stringify(state));
+ render();
+};
 function fmt(n){return Math.round(n).toLocaleString('ru-RU')}
 function iconFor(name,rarity=''){const s=(name+' '+rarity).toLowerCase();if(/амулет/.test(s))return'🔮';if(/меч/.test(s))return'⚔️';if(/броник/.test(s))return'🛡️';if(/руна/.test(s))return'✨';if(/алмаз|сапфир|изумруд|аметист|нефрит|камень/.test(s))return'💎';if(/золото|руда/.test(s))return'🪙';if(/вода/.test(s))return'💧';return'⭐'}
 function allTargets(value){const a=[];CASES.forEach(c=>c.drops.forEach(d=>{if(d[2]>value)a.push({rarity:d[0],name:d[1],value:d[2]})}));const seen=new Set();return a.sort((x,y)=>x.value-y.value).filter(x=>{const k=x.rarity+'|'+x.name;if(seen.has(k))return false;seen.add(k);return true})}
@@ -334,4 +393,222 @@ $('digButton').addEventListener('click',async()=>{
 });
 $('treasureClose').addEventListener('click',()=>{$('treasureResultModal').classList.add('hidden');render()});
 render();
-</script></body></html>
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+import {
+  getAuth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, signOut,
+  setPersistence, browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, runTransaction, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyASXikuphyoknTFm-uclpf4-_qFTXoI78M",
+  authDomain: "caseup-f8d95.firebaseapp.com",
+  projectId: "caseup-f8d95",
+  storageBucket: "caseup-f8d95.firebasestorage.app",
+  messagingSenderId: "237953443670",
+  appId: "1:237953443670:web:71610482785b74ad7a58f7",
+  measurementId: "G-7VR5RDB9ZK"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+auth.languageCode = "ru";
+await setPersistence(auth, browserLocalPersistence);
+
+const $ = id => document.getElementById(id);
+let confirmation = null;
+let recaptcha = null;
+let currentUser = null;
+let cloudTimer = null;
+let currentUsername = "";
+
+function status(message, isError=false) {
+  $("authStatus").textContent = message;
+  $("authStatus").style.color = isError ? "#f0717d" : "#f5c451";
+}
+function showStep(step) {
+  $("phoneStep").style.display = step === "phone" ? "block" : "none";
+  $("codeStep").style.display = step === "code" ? "block" : "none";
+  $("usernameStep").style.display = step === "username" ? "block" : "none";
+}
+function explainError(error) {
+  const code = error?.code || "";
+  const messages = {
+    "auth/invalid-phone-number":"Проверь номер телефона и укажи его в международном формате, например +370...",
+    "auth/too-many-requests":"Слишком много попыток. Попробуй позже.",
+    "auth/quota-exceeded":"Лимит отправки SMS Firebase исчерпан. Попробуй позже.",
+    "auth/invalid-verification-code":"Неверный SMS-код. Проверь его и попробуй ещё раз.",
+    "auth/code-expired":"Срок действия кода истёк. Запроси новый.",
+    "auth/captcha-check-failed":"Не удалось пройти проверку reCAPTCHA. Обнови страницу и попробуй снова.",
+    "auth/billing-not-enabled":"Для отправки SMS может потребоваться подключить платёжный план Firebase."
+  };
+  return messages[code] || ("Не получилось выполнить действие: " + (error?.message || code || "неизвестная ошибка"));
+}
+async function ensureRecaptcha() {
+  if (recaptcha) {
+    try { recaptcha.clear(); } catch {}
+    recaptcha = null;
+  }
+  recaptcha = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
+  await recaptcha.render();
+  return recaptcha;
+}
+function validUsername(value) {
+  return /^[A-Za-z0-9_]{3,16}$/.test(value);
+}
+async function createOrLoadProfile(user) {
+  const userRef = doc(db, "users", user.uid);
+  const snap = await getDoc(userRef);
+  if (snap.exists() && snap.data().username) {
+    const data = snap.data();
+    currentUsername = data.username;
+    if (data.state && window.caseupApplyCloudState) window.caseupApplyCloudState(data.state);
+    $("playerName").textContent = "@" + currentUsername;
+    $("authScreen").style.display = "none";
+    status("");
+    return;
+  }
+  currentUser = user;
+  showStep("username");
+  status("Номер подтверждён! Теперь придумай игровой логин.");
+}
+async function saveNewProfile() {
+  const raw = $("authUsername").value.trim();
+  if (!validUsername(raw)) {
+    status("Логин: 3–16 символов, только латиница, цифры и _. ", true);
+    return;
+  }
+  const normalized = raw.toLowerCase();
+  const user = currentUser || auth.currentUser;
+  if (!user) { status("Сначала подтверди номер телефона.", true); return; }
+  $("createProfileButton").disabled = true;
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const nameRef = doc(db, "usernames", normalized);
+    const localState = JSON.parse(localStorage.getItem("caseup_player_v1") || '{"balance":500,"inventory":[],"bonusAt":0}');
+    await runTransaction(db, async transaction => {
+      const nameSnap = await transaction.get(nameRef);
+      if (nameSnap.exists() && nameSnap.data().uid !== user.uid) {
+        throw new Error("Этот логин уже занят. Придумай другой.");
+      }
+      const userSnap = await transaction.get(userRef);
+      const old = userSnap.exists() ? userSnap.data() : {};
+      transaction.set(nameRef, { uid: user.uid });
+      transaction.set(userRef, {
+        username: raw,
+        state: old.state || localState,
+        createdAt: old.createdAt || serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    });
+    currentUsername = raw;
+    const profile = await getDoc(userRef);
+    if (profile.exists() && profile.data().state && window.caseupApplyCloudState) {
+      window.caseupApplyCloudState(profile.data().state);
+    }
+    $("playerName").textContent = "@" + currentUsername;
+    $("authScreen").style.display = "none";
+    status("");
+  } catch (error) {
+    status(error.message || explainError(error), true);
+  } finally {
+    $("createProfileButton").disabled = false;
+  }
+}
+$("sendCodeButton").addEventListener("click", async () => {
+  const phone = $("authPhone").value.trim().replace(/[()\s-]/g, "");
+  if (!/^\+[1-9]\d{7,14}$/.test(phone)) {
+    status("Введи номер в международном формате, начиная с +. Например: +370...", true);
+    return;
+  }
+  $("sendCodeButton").disabled = true;
+  status("Подготавливаем проверку номера…");
+  try {
+    const verifier = await ensureRecaptcha();
+    confirmation = await signInWithPhoneNumber(auth, phone, verifier);
+    showStep("code");
+    status("SMS отправлено. Введи полученный код.");
+  } catch (error) {
+    status(explainError(error), true);
+    if (recaptcha) { try { recaptcha.clear(); } catch {} recaptcha = null; }
+  } finally {
+    $("sendCodeButton").disabled = false;
+  }
+});
+$("verifyCodeButton").addEventListener("click", async () => {
+  const code = $("authCode").value.trim();
+  if (!confirmation || !/^\d{4,8}$/.test(code)) {
+    status("Введи код из SMS.", true);
+    return;
+  }
+  $("verifyCodeButton").disabled = true;
+  try {
+    const result = await confirmation.confirm(code);
+    currentUser = result.user;
+    await createOrLoadProfile(result.user);
+  } catch (error) {
+    status(explainError(error), true);
+  } finally {
+    $("verifyCodeButton").disabled = false;
+  }
+});
+$("createProfileButton").addEventListener("click", saveNewProfile);
+$("logoutButton").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    currentUsername = "";
+    $("playerName").textContent = "";
+    $("authPhone").value = "";
+    $("authCode").value = "";
+    $("authUsername").value = "";
+    showStep("phone");
+    $("authScreen").style.display = "flex";
+    status("Ты вышел из профиля.");
+  } catch (error) {
+    status(explainError(error), true);
+  }
+});
+
+window.caseupCloud = {
+  saveState(value) {
+    if (!auth.currentUser || !currentUsername) return;
+    clearTimeout(cloudTimer);
+    const snapshot = JSON.parse(JSON.stringify(value));
+    cloudTimer = setTimeout(async () => {
+      try {
+        await setDoc(doc(db, "users", auth.currentUser.uid), {
+          state: snapshot,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      } catch (error) {
+        console.error("CaseUp cloud save failed:", error);
+        status("Не удалось сохранить прогресс в облако. Проверь подключение.", true);
+      }
+    }, 450);
+  }
+};
+
+onAuthStateChanged(auth, async user => {
+  currentUser = user;
+  if (!user) {
+    currentUsername = "";
+    $("playerName").textContent = "";
+    $("authScreen").style.display = "flex";
+    showStep("phone");
+    return;
+  }
+  try {
+    await createOrLoadProfile(user);
+  } catch (error) {
+    status(explainError(error), true);
+  }
+});
+</script>
+
+</body></html>
