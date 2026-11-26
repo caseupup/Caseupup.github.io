@@ -249,7 +249,7 @@ function fmt(n){return Math.round(n).toLocaleString('ru-RU')}
 function iconFor(name,rarity=''){const s=(name+' '+rarity).toLowerCase();if(/амулет/.test(s))return'🔮';if(/меч/.test(s))return'⚔️';if(/броник/.test(s))return'🛡️';if(/руна/.test(s))return'✨';if(/алмаз|сапфир|изумруд|аметист|нефрит|камень/.test(s))return'💎';if(/золото|руда/.test(s))return'🪙';if(/вода/.test(s))return'💧';return'⭐'}
 function allTargets(value){const a=[];CASES.forEach(c=>c.drops.forEach(d=>{if(d[2]>value)a.push({rarity:d[0],name:d[1],value:d[2]})}));const seen=new Set();return a.sort((x,y)=>x.value-y.value).filter(x=>{const k=x.rarity+'|'+x.name;if(seen.has(k))return false;seen.add(k);return true})}
 function weightedDrop(drops){let r=Math.random()*100,s=0;for(const d of drops){s+=d[3];if(r<s)return d}return drops[drops.length-1]}
-function showTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['cases','inventory','upgrade','bonus','games','profile'].forEach(x=>$(x).classList.toggle('hidden',x!==tab));if(tab!=='games')$('treasure').classList.add('hidden');if(tab==='games'){$('gamesHome').classList.remove('hidden');if(window.caseupCloud?.refreshLeaderboard)window.caseupCloud.refreshLeaderboard()}if(tab==='upgrade')renderUpgrade();if(tab==='profile'&&window.caseupRenderProfile)window.caseupRenderProfile();if(tab==='profile')renderStats();window.scrollTo({top:0,behavior:'smooth'})}
+function showTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['cases','inventory','upgrade','bonus','games','profile'].forEach(x=>$(x).classList.toggle('hidden',x!==tab));$('treasure').classList.add('hidden');if(tab==='games'){$('gamesHome').classList.remove('hidden');if(window.caseupCloud?.refreshLeaderboard)window.caseupCloud.refreshLeaderboard()}if(tab==='upgrade')renderUpgrade();if(tab==='profile'&&window.caseupRenderProfile)window.caseupRenderProfile();if(tab==='profile')renderStats();window.scrollTo({top:0,behavior:'smooth'})}
 function render(){ensureStats();$('balance').textContent=fmt(state.balance);renderCases();renderInventory();renderUpgrade();renderStats();const wait=86400000-(Date.now()-(state.bonusAt||0));$('claim').disabled=wait>0;$('bonusStatus').textContent=wait>0?'Следующий бонус через '+Math.floor(wait/3600000)+' ч. '+Math.floor(wait%3600000/60000)+' мин.':'Бонус доступен!'}
 function renderCases(){const c=CASES[selected];$('caseGrid').innerHTML=CASES.map((x,i)=>`<button class="case ${i===selected?'selected':''}" data-case="${i}"><div class="emoji">${x.name.split(' ')[0]}</div><b>${x.name.substring(x.name.indexOf(' ')+1)}</b><small>${fmt(x.price)} апов</small></button>`).join('');$('caseName').textContent=c.name;$('casePrice').textContent=fmt(c.price)+' апов';$('open').disabled=spinning||state.balance<c.price;$('fastCaseToggle').disabled=spinning;$('caseContents').innerHTML=c.drops.map(d=>`<div class="drop-card"><span class="item-icon">${iconFor(d[1],d[0])}</span><b>${d[0]} ${d[1]}</b><small>${fmt(d[2])} апов · ${d[3]}%</small></div>`).join('');if(!spinning&&!lastDrop){$('reelWrap').classList.remove('hidden');$('caseResult').classList.add('hidden')}}
 function renderInventory(){ $('items').innerHTML=state.inventory.length?state.inventory.map((it,i)=>`<div class="item"><div class="item-main"><span class="item-icon">${iconFor(it.name,it.rarity)}</span><div><span class="rarity">${it.rarity}</span><b>${it.name}</b><span class="muted">${fmt(it.value)} апов</span></div></div><button class="secondary" data-sell="${i}">Продать</button></div>`).join(''):'<div class="empty">Инвентарь пока пуст. Открой первый кейс 📦</div>'}
@@ -544,7 +544,7 @@ function withTimeout(promise, ms, message) {
   ]).finally(() => clearTimeout(timer));
 }
 function validUsername(value) { return /^[A-Za-z0-9_]{3,16}$/.test(value); }
-async function createOrLoadProfile(user) {
+async function createOrLoadProfile(user, loadRun = null) {
   currentUser = user;
   if (!user.emailVerified) {
     showStep("verifyStep");
@@ -554,6 +554,7 @@ async function createOrLoadProfile(user) {
   }
   const userRef = doc(db, "users", user.uid);
   const snap = await getDoc(userRef);
+  if (loadRun !== null && loadRun !== authCallbackRun) return;
   if (snap.exists() && snap.data().username) {
     const data = snap.data();
     currentUsername = data.username;
@@ -565,11 +566,12 @@ async function createOrLoadProfile(user) {
     }
     if (window.caseupApplyCloudState) window.caseupApplyCloudState(data.state);
     window.caseupRenderProfile();
-    // Таблица синхронизируется отдельно: её ошибка не должна блокировать вход в игру.
-    if (window.caseupCloud?.syncLeaderboard) await window.caseupCloud.syncLeaderboard(data.state);
-    if (window.caseupCloud?.refreshLeaderboard) await window.caseupCloud.refreshLeaderboard();
+    // Сначала открываем профиль. Синхронизация таблицы не должна задерживать вход.
+    if (loadRun !== null && loadRun !== authCallbackRun) return;
     $("authScreen").style.display = "none";
     status("");
+    if (window.caseupCloud?.syncLeaderboard) window.caseupCloud.syncLeaderboard(data.state).then(() => window.caseupCloud.refreshLeaderboard());
+    else if (window.caseupCloud?.refreshLeaderboard) window.caseupCloud.refreshLeaderboard();
     return;
   }
   profileSetupUser = user;
@@ -699,7 +701,7 @@ window.caseupCloud = {
       }, { merge: true });
       leaderboardWriteError = "";
     } catch (error) {
-      leaderboardWriteError = "Не удалось записать результат. Проверьте Firestore Rules для dailyLeaderboards/{дата}/players.";
+      leaderboardWriteError = error?.code === "permission-denied" ? "Firebase отклонил запись (permission-denied). Нужно опубликовать Firestore Rules для dailyLeaderboards/{дата}/players." : "Не удалось записать результат: " + (error?.code || error?.message || "неизвестная ошибка");
       console.error("Leaderboard sync failed:", error);
     }
   },
@@ -739,14 +741,25 @@ window.caseupCloud = {
 let authCallbackRun = 0;
 async function loadSignedInProfile(user) {
   const run = ++authCallbackRun;
+  if (!user) {
+    $("authLoading").querySelector(".auth-help").textContent = "Сессия ещё не восстановлена. Нажми «Повторить загрузку».";
+    $("retryProfileButton").style.display = "block";
+    return;
+  }
+  currentUser = user;
   $("authScreen").style.display = "flex";
   $("authLoading").style.display = "block";
   $("authLoading").querySelector(".auth-help").textContent = "Подожди немного, загружаем сохранённый прогресс.";
   $("retryProfileButton").style.display = "none";
+  $("retryProfileButton").disabled = false;
+  $("retryProfileButton").textContent = "Повторить загрузку";
   for (const id of ["loginStep", "registerStep", "verifyStep", "usernameStep"]) $(id).style.display = "none";
   try {
-    await withTimeout(createOrLoadProfile(user), 15000, "Загрузка профиля заняла слишком много времени. Проверь интернет и попробуй ещё раз.");
-    if (run === authCallbackRun) $("retryProfileButton").style.display = "none";
+    await withTimeout(createOrLoadProfile(user, run), 12000, "Профиль не ответил за 12 секунд. Проверь интернет и нажми «Повторить загрузку».");
+    if (run === authCallbackRun && $("authScreen").style.display !== "none" && $("authLoading").style.display !== "none") {
+      $("authLoading").querySelector(".auth-help").textContent = "Профиль пока не загрузился. Попробуй ещё раз.";
+      $("retryProfileButton").style.display = "block";
+    }
   } catch (error) {
     if (run !== authCallbackRun) return;
     $("authScreen").style.display = "flex";
@@ -756,9 +769,16 @@ async function loadSignedInProfile(user) {
     console.error("CaseUp profile load failed:", error);
   }
 }
-$("retryProfileButton").addEventListener("click", () => {
-  const user = auth.currentUser;
-  if (user) loadSignedInProfile(user);
+$("retryProfileButton").addEventListener("click", async () => {
+  const user = auth.currentUser || currentUser;
+  if (!user) {
+    $("authLoading").querySelector(".auth-help").textContent = "Не удалось восстановить вход. Обнови страницу или войди заново.";
+    $("retryProfileButton").style.display = "block";
+    return;
+  }
+  $("retryProfileButton").disabled = true;
+  $("retryProfileButton").textContent = "Повторяем…";
+  await loadSignedInProfile(user);
 });
 onAuthStateChanged(auth, async user => {
   currentUser = user;
