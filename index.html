@@ -84,6 +84,33 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 .auth-small{font-size:10px;color:#8293a8;line-height:1.5;margin-top:14px;text-align:center}
 #usernameStep{display:none}
 
+
+/* Profile, custom avatars, statistics, games and confirmation */
+.avatar-options{grid-template-columns:repeat(6,minmax(0,1fr));align-items:center}
+.avatar-option.add-avatar{display:grid;place-items:center;font-size:30px;font-weight:400;border-style:dashed;color:var(--accent);background:#142b2b}
+.avatar-option img,.profile-avatar-large img,.profile-shortcut img{width:100%;height:100%;object-fit:cover;display:block}
+.profile-avatar-large{overflow:hidden}
+.stats-title,.leaderboard-title{text-align:center;font-size:17px;font-weight:900;margin:22px 0 12px}
+.profile-stats{display:grid;grid-template-columns:1fr;gap:8px;text-align:left;margin-top:12px}
+.profile-stat{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#1a2938;border:1px solid #2b4054;border-radius:11px;padding:12px;font-size:13px}
+.profile-stat strong{color:var(--gold);font-variant-numeric:tabular-nums}
+.profile-actions{margin-top:24px}
+.games-title{text-align:center;margin-bottom:17px}
+.game-launcher{width:min(100%,390px);min-height:110px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;font-size:20px}
+.game-launcher small{font-size:11px;font-weight:600;opacity:.8}
+.leaderboard{margin-top:24px}
+.leaderboard-list{display:grid;gap:8px}
+.leaderboard-row{display:flex;justify-content:space-between;gap:12px;align-items:center;background:#1a2938;border:1px solid #2b4054;border-radius:11px;padding:11px 13px;font-size:13px}
+.leaderboard-row .rank{font-weight:900;color:var(--gold);min-width:24px}
+.leaderboard-row .player{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:800}
+.leaderboard-row .score{font-weight:900;color:var(--accent);white-space:nowrap}
+.treasure-back{margin-bottom:12px;width:100%}
+.confirm-overlay{position:fixed;inset:0;background:#050a11d9;z-index:120;display:grid;place-items:center;padding:18px}
+.confirm-card{width:min(100%,360px);padding:22px;border-radius:18px;background:linear-gradient(145deg,#1c2b3c,#111a26);border:1px solid #40556c;box-shadow:0 20px 60px #000b;text-align:center}
+.confirm-card h3{margin:0 0 12px;font-size:19px}
+.confirm-card p{color:var(--muted);font-size:14px;line-height:1.45;margin:0 0 18px}
+.confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+
 </style></head>
 <body>
 <div class="auth-screen" id="authScreen">
@@ -107,6 +134,8 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
    <input id="registerEmail" type="email" autocomplete="email" placeholder="name@example.com" />
    <label for="registerPassword">Пароль</label>
    <input id="registerPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Не менее 8 символов" />
+   <label for="registerPasswordConfirm">Подтверждение пароля</label>
+   <input id="registerPasswordConfirm" type="password" autocomplete="new-password" minlength="8" placeholder="Повтори пароль" />
    <label for="authUsername">Игровой логин</label>
    <input id="authUsername" autocomplete="username" maxlength="16" placeholder="3–16 символов: латиница, цифры, _" />
    <button class="primary" id="registerButton" type="button">Зарегистрироваться</button>
@@ -132,7 +161,7 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 
 <main class="wrap">
 <header class="top"><div class="brand" id="brandHome" role="button" tabindex="0" aria-label="На главную"><div class="logo">🐍 Case<span>Up</span></div><div class="sub">VIRTUAL CASE OPENING</div></div><div style="display:flex;align-items:center;gap:7px;justify-content:flex-end;flex-shrink:0"><div class="balance-pill"><span class="coin">🪙</span><span class="balance-value" id="balance">500</span></div><button class="profile-shortcut" id="profileShortcut" type="button" aria-label="Открыть профиль" title="Профиль"><span id="headerAvatar" class="avatar-mark">CU</span></button></div></header>
-<nav class="nav"><button class="active" data-tab="cases">📦 Кейсы</button><button data-tab="upgrade">⚡ Апгрейд</button><button data-tab="treasure">🪎 Клад</button><button data-tab="bonus">🎁 Бонус</button><button data-tab="inventory">🎒 Инвентарь</button></nav>
+<nav class="nav"><button class="active" data-tab="cases">📦 Кейсы</button><button data-tab="upgrade">⚡ Апгрейд</button><button data-tab="games">🎮 Игры</button><button data-tab="bonus">🎁 Бонус</button><button data-tab="inventory">🎒 Инвентарь</button></nav>
 <section id="cases"><div class="section case-stage"><div class="stage-kicker">МЕНЮ ОТКРЫТИЯ</div><div class="case-title" id="caseName">⚪️ Обычный</div><div class="price" id="casePrice">100 апов</div><div class="case-description">Выбери кейс ниже и попробуй получить предмет</div>
 <div id="reelWrap" class="reel-wrap"><div id="reelTrack" class="reel-track"></div><div class="reel-pointer"></div></div>
 <div id="caseResult" class="hidden"></div><div class="case-open-row"><button class="quick-toggle" id="fastCaseToggle" type="button" aria-label="Быстрое открытие" aria-pressed="false" title="Быстрое открытие"><span class="bolt">⚡</span></button><button class="primary" id="open" style="width:100%">🔓 Открыть кейс</button></div>
@@ -144,13 +173,29 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 <div class="upgrade-controls"><div class="choice-block"><label for="source">ИСХОДНЫЙ ПРЕДМЕТ</label><select id="source"></select><div id="upgradeSource" class="muted"></div></div><div class="choice-block"><label>ЦЕЛЬ АПГРЕЙДА</label><div class="target-list" id="targets"></div></div></div>
 <div class="action-row"><button class="primary upgrade-action" id="upgradeButton" disabled>Апгрейд</button><button class="quick-toggle" id="fastUpgradeToggle" type="button" aria-label="Быстрый апгрейд" aria-pressed="false" title="Быстрый апгрейд"><span class="bolt">⚡</span></button></div><div id="upgradeResult" class="upgrade-result"></div></div></section>
 <section id="bonus" class="hidden"><h2>🎁 Ежедневный бонус</h2><div class="section"><p>Каждые 24 часа можно получить случайный бонус от <b class="price">50 до 300 апов</b>.</p><button class="primary" id="claim">Забрать бонус</button><div id="bonusStatus" class="muted" style="margin-top:12px"></div></div></section>
-<section id="treasure" class="hidden">
-<div class="section">
-<div class="treasure-intro"><div class="treasure-title">🪎Клад!</div><div class="treasure-desc"><b>🔝Суть режима:</b> копается клад, где может выпасть любой результат!</div></div>
-<div class="treasure-form" style="margin-top:18px"><div><label class="muted" for="treasureStake">💰Ваша ставка:</label><input class="treasure-input" id="treasureStake" type="number" min="1" step="1" placeholder="Например, 100" inputmode="numeric"></div>
-<button class="primary" id="digButton">🪎 Искать клад</button><div id="treasureHint" class="muted" style="text-align:center"></div></div>
-</div></section>
-<section id="profile" class="hidden"><h2>👤 Профиль</h2><div class="section profile-card"><div class="profile-avatar-large" id="profileAvatarLarge">CU</div><div class="profile-username" id="profileNickname">@игрок</div><div class="profile-email" id="profileEmail"></div><div class="muted" style="margin-top:17px">Выбери аватарку</div><div class="avatar-options" id="avatarOptions"><button class="avatar-option" data-avatar="default" aria-label="CaseUp">CU</button><button class="avatar-option" data-avatar="🐍">🐍</button><button class="avatar-option" data-avatar="🎮">🎮</button><button class="avatar-option" data-avatar="💎">💎</button><button class="avatar-option" data-avatar="🚀">🚀</button><button class="avatar-option" data-avatar="👑">👑</button></div><div class="profile-actions"><button class="secondary" id="profileLogout" type="button">Выйти из аккаунта</button></div></div></section>
+<section id="games" class="hidden">
+ <h2 class="games-title">🎮 Игры</h2>
+ <div id="gamesHome">
+  <button class="primary game-launcher" id="openTreasureGame" type="button">🪎 Клад<small>Открыть игру</small></button>
+  <div class="leaderboard">
+   <div class="leaderboard-title">📊 Таблица лидеров</div>
+   <div id="leaderboardList" class="leaderboard-list"></div>
+  </div>
+ </div>
+ <section id="treasure" class="hidden">
+  <button class="secondary treasure-back" id="backToGames" type="button">← Назад к играм</button>
+  <div class="section">
+   <div class="treasure-intro"><div class="treasure-title">🪎Клад!</div><div class="treasure-desc"><b>🔝Суть режима:</b> копается клад, где может выпасть любой результат!</div></div>
+   <div class="treasure-form" style="margin-top:18px"><div><label class="muted" for="treasureStake">💰Ваша ставка:</label><input class="treasure-input" id="treasureStake" type="number" min="1" step="1" placeholder="Например, 100" inputmode="numeric"></div>
+   <button class="primary" id="digButton">🪎 Искать клад</button><div id="treasureHint" class="muted" style="text-align:center"></div></div>
+  </div>
+ </section>
+</section>
+<section id="profile" class="hidden"><h2>👤 Профиль</h2><div class="section profile-card"><div class="profile-avatar-large" id="profileAvatarLarge">CU</div><div class="profile-username" id="profileNickname">@игрок</div><div class="profile-email" id="profileEmail"></div><div class="muted" style="margin-top:17px">Выбери аватарку</div><input id="avatarFileInput" type="file" accept="image/*" hidden><div class="avatar-options" id="avatarOptions"><button class="avatar-option add-avatar" id="addAvatarButton" type="button" aria-label="Добавить свою аватарку">＋</button><button class="avatar-option" data-avatar="default" aria-label="CaseUp">CU</button><button class="avatar-option" data-avatar="🐍">🐍</button><button class="avatar-option" data-avatar="🎮">🎮</button><button class="avatar-option" data-avatar="💎">💎</button><button class="avatar-option" data-avatar="👑">👑</button></div>
+<div class="stats-title">📊 Статистика</div>
+<div class="profile-stats"><div class="profile-stat"><span>💰 Всего выиграно:</span><strong id="statTotalWon">0</strong></div><div class="profile-stat"><span>🪎 Открыто кейсов:</span><strong id="statCasesOpened">0</strong></div><div class="profile-stat"><span>👾 Сыграно игр:</span><strong id="statGamesPlayed">0</strong></div></div>
+<div class="profile-actions"><button class="secondary" id="profileLogout" type="button">Выйти из аккаунта</button></div></div></section>
+<div id="logoutConfirm" class="confirm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="logoutConfirmTitle"><div class="confirm-card"><h3 id="logoutConfirmTitle">❗️ Осторожно</h3><p>Вы точно хотите выйти из своего аккаунта?</p><div class="confirm-actions"><button class="primary" id="confirmLogoutYes" type="button">Да</button><button class="secondary" id="confirmLogoutNo" type="button">Нет</button></div></div></div>
 <div class="note">CaseUp — развлекательная игра с виртуальными апами и предметами. Апы нельзя купить или вывести за реальные деньги.<br>Прогресс профиля синхронизируется через облако Firebase.</div>
 </main>
 <div id="rareReveal" class="rare-reveal hidden" aria-hidden="true">
@@ -182,23 +227,29 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 const CASES = [{"id":"ordinary","name":"⚪️ Обычный","price":100,"drops":[["Обычный","Амулет",40,50],["Обычный","Каменный амулет",80,30],["Обычный","Водный амулет",135,15],["Редкий","Красный броник",225,5]]},{"id":"rare","name":"✨ Редкий","price":250,"drops":[["Редкий","Каменный броник",145,50],["Редкий","Железная руда",200,25],["Редкий","Золото",325,13],["Редкий","Алмаз",450,10],["Эпический","Изумруд",675,2]]},{"id":"diamond","name":"💎 Алмазный","price":500,"drops":[["Редкий","Золото",325,40],["Редкий","Каменный алмаз",390,30],["Эпический","Каменный изумруд",525,15],["Эпический","Аметист",775,10],["Эпический","Эмеральд",1025,5]]},{"id":"rune","name":"⚡️ Рунический","price":1000,"drops":[["Эпический","Руна молнии",400,40],["Эпический","Руна силы",700,25],["Эпический","Руна",1100,20],["Эпический","Руна камня",1500,10],["Легендарный","Рунный камень",2250,5]]},{"id":"legends","name":"⚜️ Легенды","price":2500,"drops":[["Эпический","Руна камня",1500,50],["Легендарный","Рунный камень",2250,20],["Легендарный","Рунный броник",2725,15],["Легендарный","Рунное золото",3350,10],["Легендарный","Рунный алмаз",3975,5]]},{"id":"amethyst","name":"🪎 Аметистовый","price":5000,"drops":[["Легендарный","Амулет рун",2250,30],["Легендарный","Рунный меч",3750,25],["Легендарный","Аметистовый броник",4800,20],["Легендарный","Руна аметиста",6100,15],["Легендарный","Аметистовый амулет",7520,7],["Легендарный","Аметист",9500,3]]},{"id":"eternal","name":"🪐 Вечный","price":10000,"drops":[["Легендарный","Каменный сапфир",6000,55],["Легендарный","Сапфир",9500,20],["Мифический","Руна вечности",12500,15],["Мифический","Сапфировый меч",15000,6],["Мифический","Меч вечности",18500,4]]},{"id":"cobra","name":"🐍 Кобра","price":25000,"drops":[["Мифический","Руна вечности",12500,25],["Мифический","Камень вечности",17200,15],["Мифический","Вечный меч",22300,15],["Мифический","Амулет вечности",27900,15],["Мифический","Каменный нефрит",34700,15],["Вечный","Нефритовый броник",40000,10],["Вечный","Нефритовая руна",54200,3],["Вечный","Кровавый амулет",63500,2]]}];
 const KEY='caseup_player_v1', $=id=>document.getElementById(id);
 let state=load(),selected=0,lastDrop=null,chosenTarget=null,spinning=false,upgradeBusy=false,treasureBusy=false,chainCount=0,fastUpgrade=false,fastCase=false;
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&typeof x.balance==='number'&&Array.isArray(x.inventory)){if(x.pendingTreasure){x.balance+=Number(x.pendingTreasure.payout)||0;x.lastTreasureRecovery=Date.now();x.pendingTreasure=null;localStorage.setItem(KEY,JSON.stringify(x))}return x}}catch(e){}return{balance:500,inventory:[],bonusAt:0}}
+function moscowDayKey(date=new Date()){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Moscow',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);const v={};parts.forEach(p=>v[p.type]=p.value);return `${v.year}-${v.month}-${v.day}`}
+function ensureStats(){if(!state.stats||typeof state.stats!=='object')state.stats={totalWon:0,casesOpened:0,gamesPlayed:0,dailyWon:0,dailyDate:moscowDayKey()};state.stats.totalWon=Math.max(0,Number(state.stats.totalWon)||0);state.stats.casesOpened=Math.max(0,Number(state.stats.casesOpened)||0);state.stats.gamesPlayed=Math.max(0,Number(state.stats.gamesPlayed)||0);if(state.stats.dailyDate!==moscowDayKey()){state.stats.dailyDate=moscowDayKey();state.stats.dailyWon=0}else state.stats.dailyWon=Math.max(0,Number(state.stats.dailyWon)||0)}
+function addWon(amount){ensureStats();const gain=Math.max(0,Math.floor(Number(amount)||0));state.stats.totalWon+=gain;state.stats.dailyWon+=gain}
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&typeof x.balance==='number'&&Array.isArray(x.inventory)){if(x.pendingTreasure){x.balance+=Number(x.pendingTreasure.payout)||0;x.lastTreasureRecovery=Date.now();x.pendingTreasure=null;localStorage.setItem(KEY,JSON.stringify(x))}state=x;ensureStats();return state}}catch(e){}return{balance:500,inventory:[],bonusAt:0,stats:{totalWon:0,casesOpened:0,gamesPlayed:0,dailyWon:0,dailyDate:moscowDayKey()}}}
 function save(){
- localStorage.setItem(KEY,JSON.stringify(state));
+ ensureStats();localStorage.setItem(KEY,JSON.stringify(state));
  if(window.caseupCloud&&window.caseupCloud.saveState)window.caseupCloud.saveState(state);
+ renderStats();
 }
+function renderStats(){ensureStats();const st=state.stats;$('statTotalWon').textContent=fmt(st.totalWon)+' апов';$('statCasesOpened').textContent=fmt(st.casesOpened);$('statGamesPlayed').textContent=fmt(st.gamesPlayed)}
+window.caseupRenderLeaderboard=function(rows){const host=$('leaderboardList');if(!host)return;host.innerHTML=(rows||[]).slice(0,5).map((r,i)=>`<div class="leaderboard-row"><span class="rank">${i+1}.</span><span class="player">@${String(r.username||'Игрок').replace(/[<>]/g,'')}</span><span class="score">${fmt(r.totalWon||0)} апов</span></div>`).join('')};
 window.caseupApplyCloudState=function(remote){
  if(!remote||typeof remote.balance!=='number'||!Array.isArray(remote.inventory))return;
- state={...remote};
+ state={...remote};ensureStats();
  localStorage.setItem(KEY,JSON.stringify(state));
- render();
+ render();renderStats();
 };
 function fmt(n){return Math.round(n).toLocaleString('ru-RU')}
 function iconFor(name,rarity=''){const s=(name+' '+rarity).toLowerCase();if(/амулет/.test(s))return'🔮';if(/меч/.test(s))return'⚔️';if(/броник/.test(s))return'🛡️';if(/руна/.test(s))return'✨';if(/алмаз|сапфир|изумруд|аметист|нефрит|камень/.test(s))return'💎';if(/золото|руда/.test(s))return'🪙';if(/вода/.test(s))return'💧';return'⭐'}
 function allTargets(value){const a=[];CASES.forEach(c=>c.drops.forEach(d=>{if(d[2]>value)a.push({rarity:d[0],name:d[1],value:d[2]})}));const seen=new Set();return a.sort((x,y)=>x.value-y.value).filter(x=>{const k=x.rarity+'|'+x.name;if(seen.has(k))return false;seen.add(k);return true})}
 function weightedDrop(drops){let r=Math.random()*100,s=0;for(const d of drops){s+=d[3];if(r<s)return d}return drops[drops.length-1]}
-function showTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['cases','inventory','upgrade','bonus','treasure','profile'].forEach(x=>$(x).classList.toggle('hidden',x!==tab));if(tab==='upgrade')renderUpgrade();if(tab==='profile'&&window.caseupRenderProfile)window.caseupRenderProfile();window.scrollTo({top:0,behavior:'smooth'})}
-function render(){ $('balance').textContent=fmt(state.balance);renderCases();renderInventory();renderUpgrade();const wait=86400000-(Date.now()-(state.bonusAt||0));$('claim').disabled=wait>0;$('bonusStatus').textContent=wait>0?'Следующий бонус через '+Math.floor(wait/3600000)+' ч. '+Math.floor(wait%3600000/60000)+' мин.':'Бонус доступен!'}
+function showTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['cases','inventory','upgrade','bonus','games','profile'].forEach(x=>$(x).classList.toggle('hidden',x!==tab));if(tab!=='games')$('treasure').classList.add('hidden');if(tab==='games'){$('gamesHome').classList.remove('hidden');if(window.caseupCloud?.refreshLeaderboard)window.caseupCloud.refreshLeaderboard()}if(tab==='upgrade')renderUpgrade();if(tab==='profile'&&window.caseupRenderProfile)window.caseupRenderProfile();if(tab==='profile')renderStats();window.scrollTo({top:0,behavior:'smooth'})}
+function render(){ensureStats();$('balance').textContent=fmt(state.balance);renderCases();renderInventory();renderUpgrade();renderStats();const wait=86400000-(Date.now()-(state.bonusAt||0));$('claim').disabled=wait>0;$('bonusStatus').textContent=wait>0?'Следующий бонус через '+Math.floor(wait/3600000)+' ч. '+Math.floor(wait%3600000/60000)+' мин.':'Бонус доступен!'}
 function renderCases(){const c=CASES[selected];$('caseGrid').innerHTML=CASES.map((x,i)=>`<button class="case ${i===selected?'selected':''}" data-case="${i}"><div class="emoji">${x.name.split(' ')[0]}</div><b>${x.name.substring(x.name.indexOf(' ')+1)}</b><small>${fmt(x.price)} апов</small></button>`).join('');$('caseName').textContent=c.name;$('casePrice').textContent=fmt(c.price)+' апов';$('open').disabled=spinning||state.balance<c.price;$('fastCaseToggle').disabled=spinning;$('caseContents').innerHTML=c.drops.map(d=>`<div class="drop-card"><span class="item-icon">${iconFor(d[1],d[0])}</span><b>${d[0]} ${d[1]}</b><small>${fmt(d[2])} апов · ${d[3]}%</small></div>`).join('');if(!spinning&&!lastDrop){$('reelWrap').classList.remove('hidden');$('caseResult').classList.add('hidden')}}
 function renderInventory(){ $('items').innerHTML=state.inventory.length?state.inventory.map((it,i)=>`<div class="item"><div class="item-main"><span class="item-icon">${iconFor(it.name,it.rarity)}</span><div><span class="rarity">${it.rarity}</span><b>${it.name}</b><span class="muted">${fmt(it.value)} апов</span></div></div><button class="secondary" data-sell="${i}">Продать</button></div>`).join(''):'<div class="empty">Инвентарь пока пуст. Открой первый кейс 📦</div>'}
 function renderUpgrade(force=false,preferredIndex=null){
@@ -277,7 +328,9 @@ $('rareOpenAgain').addEventListener('click',openAnotherCase);
 $('open').addEventListener('click',()=>{
  if(spinning)return;const c=CASES[selected];if(state.balance<c.price)return;
  state.balance-=c.price;const d=weightedDrop(c.drops),winner=makeReel(d);lastDrop={rarity:d[0],name:d[1],value:d[2]};
- // Save the item before any animation starts, so a refresh cannot lose the drop.
+ // Case statistics count the positive difference between the drop value and the case price.
+ ensureStats();state.stats.casesOpened++;addWon(d[2]-c.price);
+ // Save the item and statistics before any animation starts, so a refresh cannot lose the result.
  state.inventory.push(lastDrop);save();spinning=true;$('open').disabled=true;$('caseResult').classList.add('hidden');$('open').classList.remove('hidden');render();
  requestAnimationFrame(()=>requestAnimationFrame(()=>{
    const track=$('reelTrack'),wrap=$('reelWrap'),item=track.children[winner],distance=item.offsetLeft+item.offsetWidth/2-wrap.clientWidth/2;
@@ -305,9 +358,11 @@ function runUpgradeStep(sourceIndex,target,isChain){
  const special=specialArc>0&&delta<=specialArc/2,success=delta<=arc/2;
  const duration=fastUpgrade?(700+Math.random()*1100):(4200+Math.random()*2500),spins=fastUpgrade?(2+Math.floor(Math.random()*2)):(5+Math.floor(Math.random()*4)),finalAngle=angle,rotation=spins*360+finalAngle;
  // Commit the outcome before animation: refreshing cannot restore a consumed source item.
+ ensureStats();state.stats.gamesPlayed++;
  if(success){
    if(!special)state.inventory.splice(sourceIndex,1);
    state.inventory.push({...target});
+   addWon(target.value-src.value);
    if(isChain)chainCount++;else if(special)chainCount=1;
  }else if(!isChain){
    state.inventory.splice(sourceIndex,1);
@@ -343,6 +398,8 @@ function runUpgradeStep(sourceIndex,target,isChain){
 $('upgradeButton').addEventListener('click',()=>{if(upgradeBusy||!chosenTarget)return;const i=Number($('source').value),src=state.inventory[i];if(!src)return;const target={...chosenTarget};const chance=src.value/target.value*100;if(chance>80||chance<=0)return;upgradeBusy=true;chainCount=0;runUpgradeStep(i,target,false)});
 $('claim').addEventListener('click',()=>{if(Date.now()-(state.bonusAt||0)<86400000)return;const amount=50+Math.floor(Math.random()*251);state.balance+=amount;state.bonusAt=Date.now();save();render();$('bonusStatus').textContent='🎉 Получено '+amount+' апов!'});
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+$('openTreasureGame').addEventListener('click',()=>{$('gamesHome').classList.add('hidden');$('treasure').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'})});
+$('backToGames').addEventListener('click',()=>{$('treasure').classList.add('hidden');$('gamesHome').classList.remove('hidden');if(window.caseupCloud?.refreshLeaderboard)window.caseupCloud.refreshLeaderboard()});
 $('brandHome').addEventListener('click',()=>showTab('cases'));$('brandHome').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showTab('cases')}});
 const TREASURE_PHASES=[
  {min:.10,max:.20,color:'#c4ccd5',icon:'⚪️',name:'Обычная',weight:18},
@@ -382,7 +439,7 @@ $('digButton').addEventListener('click',async()=>{
  treasureBusy=true;$('digButton').disabled=true;$('treasureHint').textContent='';
  const phaseIndex=chooseTreasurePhase(),phase=TREASURE_PHASES[phaseIndex];
  const mult=phase.min+Math.random()*(phase.max-phase.min),payout=Math.floor(stake*mult);
- state.balance-=stake;state.pendingTreasure={payout,mult,stake,phase:phaseIndex+1};save();render();
+ state.balance-=stake;state.pendingTreasure={payout,mult,stake,phase:phaseIndex+1};ensureStats();state.stats.gamesPlayed++;addWon(payout-stake);save();render();
  $('treasureOverlay').classList.remove('hidden');$('chest').classList.remove('open');$('chest').style.animation='none';void $('chest').offsetWidth;$('chest').style.animation='';
  $('phaseCircle').style.background='#8c969f';$('phaseCircle').style.borderColor='#d4d9df';$('phaseCircle').style.boxShadow='0 0 0 4px #ffffff12';
  $('treasureStatus').textContent='Сундук найден…';$('treasureMult').textContent='Фаза 1 из 10';
@@ -417,7 +474,8 @@ import {
   setPersistence, browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, runTransaction, serverTimestamp
+  getFirestore, doc, getDoc, setDoc, runTransaction, serverTimestamp,
+  collection, query, orderBy, limit, getDocs
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -443,9 +501,10 @@ let currentUsername = "";
 let profileSetupUser = null;
 let pendingUsername = "";
 let currentAvatar = "default";
-const AVATARS = ["default", "🐍", "🎮", "💎", "🚀", "👑"];
-function avatarHTML(value){ return value === "default" ? '<span class="avatar-mark">CU</span>' : value; }
-function paintAvatar(){ $("headerAvatar").innerHTML = avatarHTML(currentAvatar); $("profileAvatarLarge").innerHTML = avatarHTML(currentAvatar); document.querySelectorAll("[data-avatar]").forEach(b=>b.classList.toggle("selected",b.dataset.avatar===currentAvatar)); }
+let currentAvatarImage = "";
+const AVATARS = ["default", "🐍", "🎮", "💎", "👑"];
+function avatarHTML(value,image=""){ if(image)return `<img src="${image}" alt="Аватар">`;return value === "default" ? '<span class="avatar-mark">CU</span>' : value; }
+function paintAvatar(){ $("headerAvatar").innerHTML = avatarHTML(currentAvatar,currentAvatarImage); $("profileAvatarLarge").innerHTML = avatarHTML(currentAvatar,currentAvatarImage); document.querySelectorAll("[data-avatar]").forEach(b=>b.classList.toggle("selected",!currentAvatarImage&&b.dataset.avatar===currentAvatar)); }
 window.caseupRenderProfile = function(){ $("profileNickname").textContent = currentUsername ? "@"+currentUsername : "Профиль"; $("profileEmail").textContent = currentUser?.email || ""; paintAvatar(); };
 
 function status(message, isError=false) {
@@ -486,11 +545,13 @@ async function createOrLoadProfile(user) {
     const data = snap.data();
     currentUsername = data.username;
     currentAvatar = AVATARS.includes(data.avatar) ? data.avatar : "default";
+    currentAvatarImage = typeof data.avatarImage === "string" && data.avatarImage.startsWith("data:image/") ? data.avatarImage : "";
     paintAvatar();
     if (data.state && window.caseupApplyCloudState) window.caseupApplyCloudState(data.state);
     window.caseupRenderProfile();
     $("authScreen").style.display = "none";
     status("");
+    if(window.caseupCloud?.refreshLeaderboard)window.caseupCloud.refreshLeaderboard();
     return;
   }
   profileSetupUser = user;
@@ -514,7 +575,7 @@ async function saveNewProfile() {
       const userSnap = await transaction.get(userRef);
       const old = userSnap.exists() ? userSnap.data() : {};
       transaction.set(nameRef, { uid: user.uid });
-      transaction.set(userRef, { username: raw, avatar: old.avatar || "default", state: old.state || localState, createdAt: old.createdAt || serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+      transaction.set(userRef, { username: raw, avatar: old.avatar || "default", avatarImage: old.avatarImage || "", state: old.state || localState, createdAt: old.createdAt || serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
     });
     currentUsername = raw;
     currentAvatar = "default";
@@ -542,9 +603,11 @@ $("loginButton").addEventListener("click", async () => {
 $("registerButton").addEventListener("click", async () => {
   const email = $("registerEmail").value.trim();
   const password = $("registerPassword").value;
+  const passwordConfirm = $("registerPasswordConfirm").value;
   const username = $("authUsername").value.trim();
-  if (!email || !password) { status("Введи почту и пароль.", true); return; }
+  if (!email || !password || !passwordConfirm) { status("Заполни почту и оба поля пароля.", true); return; }
   if (password.length < 8) { status("Пароль должен содержать не менее 8 символов.", true); return; }
+  if (password !== passwordConfirm) { status("Пароли не совпадают. Проверь оба поля.", true); return; }
   if (!validUsername(username)) { status("Логин: 3–16 символов, только латиница, цифры и _. ", true); return; }
   $("registerButton").disabled = true;
   try {
@@ -569,19 +632,38 @@ $("resendVerificationButton").addEventListener("click", async () => {
 });
 $("createProfileButton").addEventListener("click", saveNewProfile);
 async function logoutFromProfile() {
-  try { await signOut(auth); currentUsername = ""; currentAvatar = "default"; profileSetupUser = null; showStep("loginStep"); $("authScreen").style.display = "flex"; status("Ты вышел из профиля."); }
+  try { await signOut(auth); currentUsername = ""; currentAvatar = "default"; currentAvatarImage = ""; profileSetupUser = null; $("logoutConfirm").classList.add("hidden"); showStep("loginStep"); $("authScreen").style.display = "flex"; status("Ты вышел из профиля."); }
   catch (error) { status(explainError(error), true); }
 }
 $("profileShortcut").addEventListener("click", () => showTab("profile"));
-$("profileLogout").addEventListener("click", logoutFromProfile);
+$("profileLogout").addEventListener("click", () => $("logoutConfirm").classList.remove("hidden"));
+$("confirmLogoutYes").addEventListener("click", logoutFromProfile);
+$("confirmLogoutNo").addEventListener("click", () => { $("logoutConfirm").classList.add("hidden"); showTab("profile"); });
 document.querySelectorAll("[data-avatar]").forEach(button => button.addEventListener("click", async () => {
   const chosen = button.dataset.avatar;
   if (!AVATARS.includes(chosen) || !currentUser || !currentUsername) return;
-  currentAvatar = chosen;
-  paintAvatar();
-  try { await setDoc(doc(db, "users", currentUser.uid), { avatar: chosen, updatedAt: serverTimestamp() }, { merge: true }); }
+  currentAvatar = chosen; currentAvatarImage = ""; paintAvatar();
+  try { await setDoc(doc(db, "users", currentUser.uid), { avatar: chosen, avatarImage: "", updatedAt: serverTimestamp() }, { merge: true }); }
   catch (error) { status("Не удалось сохранить аватарку. Проверь интернет.", true); }
 }));
+$("addAvatarButton").addEventListener("click", () => $("avatarFileInput").click());
+$("avatarFileInput").addEventListener("change", async e => {
+  const file=e.target.files?.[0]; if(!file)return;
+  if(!file.type.startsWith("image/")){status("Выбери файл изображения.",true);return;}
+  if(file.size>12*1024*1024){status("Фотография слишком большая. Выбери изображение до 12 МБ.",true);return;}
+  try{
+    const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)});
+    const img=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=dataUrl});
+    const canvas=document.createElement("canvas"),side=256;canvas.width=side;canvas.height=side;const ctx=canvas.getContext("2d");
+    const scale=Math.max(side/img.width,side/img.height),w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(side-w)/2,(side-h)/2,w,h);
+    const compressed=canvas.toDataURL("image/webp",0.72);
+    if(compressed.length>700000)throw new Error("Не удалось уменьшить изображение до нужного размера.");
+    currentAvatarImage=compressed;paintAvatar();
+    await setDoc(doc(db,"users",currentUser.uid),{avatar:"default",avatarImage:compressed,updatedAt:serverTimestamp()},{merge:true});
+    status("Аватарка сохранена!");
+  }catch(error){status("Не удалось сохранить фотографию. "+(error.message||"Проверь подключение."),true)}
+  finally{e.target.value=""}
+});
 
 window.caseupCloud = {
   saveState(value) {
@@ -589,9 +671,23 @@ window.caseupCloud = {
     clearTimeout(cloudTimer);
     const snapshot = JSON.parse(JSON.stringify(value));
     cloudTimer = setTimeout(async () => {
-      try { await setDoc(doc(db, "users", auth.currentUser.uid), { state: snapshot, updatedAt: serverTimestamp() }, { merge: true }); }
+      try {
+        await setDoc(doc(db, "users", auth.currentUser.uid), { state: snapshot, updatedAt: serverTimestamp() }, { merge: true });
+        const stats=snapshot.stats||{};const today=moscowDayKey();
+        if(Number(stats.dailyWon)>0&&stats.dailyDate===today){
+          await setDoc(doc(db,"dailyLeaderboards",today,"players",auth.currentUser.uid),{username:currentUsername,totalWon:Number(stats.dailyWon)||0,updatedAt:serverTimestamp()},{merge:true});
+        }
+      }
       catch (error) { console.error("CaseUp cloud save failed:", error); status("Не удалось сохранить прогресс в облако. Проверь подключение.", true); }
     }, 450);
+  },
+  async refreshLeaderboard(){
+    try{
+      const today=moscowDayKey();
+      const q=query(collection(db,"dailyLeaderboards",today,"players"),orderBy("totalWon","desc"),limit(5));
+      const snap=await getDocs(q);const rows=snap.docs.map(d=>d.data());
+      if(window.caseupRenderLeaderboard)window.caseupRenderLeaderboard(rows);
+    }catch(error){console.error("Leaderboard load failed:",error);}
   }
 };
 
