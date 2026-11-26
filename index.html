@@ -488,7 +488,6 @@ async function createOrLoadProfile(user) {
     currentAvatar = AVATARS.includes(data.avatar) ? data.avatar : "default";
     paintAvatar();
     if (data.state && window.caseupApplyCloudState) window.caseupApplyCloudState(data.state);
-    $("playerName").textContent = "@" + currentUsername;
     window.caseupRenderProfile();
     $("authScreen").style.display = "none";
     status("");
@@ -522,7 +521,6 @@ async function saveNewProfile() {
     paintAvatar();
     const profile = await getDoc(userRef);
     if (profile.exists() && profile.data().state && window.caseupApplyCloudState) window.caseupApplyCloudState(profile.data().state);
-    $("playerName").textContent = "@" + currentUsername;
     window.caseupRenderProfile();
     $("authScreen").style.display = "none";
     status("");
@@ -599,7 +597,6 @@ window.caseupCloud = {
 
 onAuthStateChanged(auth, async user => {
   currentUser = user;
-  if (!user) { currentUsername = ""; $("playerName").textContent = ""; $("authScreen").style.display = "flex"; showStep("loginStep"); return; }
   try { await createOrLoadProfile(user); }
   catch (error) { status(explainError(error), true); }
 });
