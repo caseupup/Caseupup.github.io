@@ -703,6 +703,8 @@ $('transferButton').addEventListener('click',async()=>{
  if(amount>state.balance){transferStatus('На балансе недостаточно апов.',true);return}
  if(!TRANSFER_WORKER_URL.startsWith('https://')){transferStatus('Сначала подключим адрес Cloudflare Worker.',true);return}
  const btn=$('transferButton');btn.disabled=true;btn.textContent='Передаём…';transferStatus('Проверяем игрока и выполняем перевод…');
+ // Prevent a queued autosave with the pre-transfer balance from overwriting the server transaction.
+ clearTimeout(cloudTimer);
  try{
   const idToken=await currentUser.getIdToken();
   const response=await fetch(TRANSFER_WORKER_URL,{
