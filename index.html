@@ -157,6 +157,25 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 .reel-track{will-change:transform;backface-visibility:hidden;transform:translate3d(0,0,0)}
 .treasure-stage .chest{font-size:100px}
 
+
+/* CaseUp: unified closed chest artwork and corrected upgrade layout */
+.case .emoji{height:88px;top:0;display:flex;align-items:center;justify-content:center;overflow:visible}
+.case .emoji:before,.case .emoji:after{display:none!important;content:none!important}
+.case .emoji .case-chest-art{position:relative!important;display:block;width:94px;height:68px;top:auto;left:auto;transform:none;font-size:0!important;color:inherit;background:none;filter:drop-shadow(0 7px 7px #0009)}
+.case-chest-art .case-chest-body,.game-chest-mark .game-chest-body{position:absolute;left:4px;right:4px;bottom:0;height:43px;border:2px solid var(--chest-edge,#c9a56c);border-radius:7px 7px 11px 11px;background:linear-gradient(110deg,var(--chest-a,#8a5a2c),var(--chest-b,#4a2d1d) 48%,var(--chest-a,#8a5a2c));box-shadow:inset 0 5px 8px #fff3,inset 0 -7px 10px #0006}
+.case-chest-art .case-chest-lid,.game-chest-mark .game-chest-lid{position:absolute;z-index:2;left:0;top:6px;width:100%;height:24px;border:2px solid var(--chest-edge,#d8b77c);border-radius:48% 48% 6px 6px / 40% 40% 6px 6px;background:linear-gradient(100deg,var(--chest-a,#8a5a2c),#e2b96d 42%,var(--chest-b,#4a2d1d));box-shadow:inset 0 4px 7px #fff4,0 3px 4px #0008}
+.case-chest-art .case-chest-band,.game-chest-mark .game-chest-band{position:absolute;z-index:3;left:calc(50% - 6px);top:0;bottom:0;width:12px;border-left:1px solid #fff8;border-right:1px solid #2a170b;background:linear-gradient(90deg,#83501f,#ffe0a0 48%,#754319)}
+.case-chest-art .case-chest-lock,.game-chest-mark .game-chest-lock{position:absolute;z-index:4;left:calc(50% - 7px);top:18px;width:14px;height:17px;border:2px solid #ffe4a8;border-radius:4px;background:linear-gradient(145deg,#fff0bd,#c8872d 65%,#714015);box-shadow:0 2px 3px #160b04}
+.case-chest-art .case-chest-gem,.game-chest-mark .game-chest-gem{position:absolute;z-index:5;right:7px;top:-2px;color:#d9f5ff;font-size:14px;line-height:1;text-shadow:0 0 7px #8bdcff,0 1px 3px #000}
+.case .emoji .case-rarity-mark{position:absolute;z-index:6;right:1px;top:2px;font-size:15px;font-style:normal;filter:drop-shadow(0 2px 3px #000)}
+.case[data-case="0"]{--chest-a:#737f8c;--chest-b:#273442;--chest-edge:#a9b5c2}.case[data-case="1"]{--chest-a:#3b86a4;--chest-b:#1b344c;--chest-edge:#79c8e8}.case[data-case="2"]{--chest-a:#3977cf;--chest-b:#182c55;--chest-edge:#8dc4ff}.case[data-case="3"]{--chest-a:#5964bd;--chest-b:#25264f;--chest-edge:#a4aaff}.case[data-case="4"]{--chest-a:#a27b42;--chest-b:#44301e;--chest-edge:#e5c27b}.case[data-case="5"]{--chest-a:#8e5bb6;--chest-b:#38264f;--chest-edge:#d6a4ff}.case[data-case="6"]{--chest-a:#337caa;--chest-b:#142b49;--chest-edge:#8bd8ff}.case[data-case="7"]{--chest-a:#a34b51;--chest-b:#421d2c;--chest-edge:#ff9b9b}
+.game-launcher .game-chest-mark{position:absolute;z-index:2;left:50%;top:40%;transform:translate(-50%,-50%);width:100px;height:74px;font-size:0;filter:drop-shadow(0 6px 7px #000a);--chest-a:#9b6b35;--chest-b:#513018;--chest-edge:#e4bd77}
+.game-chest-mark .game-chest-body{left:5px;right:5px;height:45px}.game-chest-mark .game-chest-lid{top:5px;height:25px}.game-chest-mark .game-chest-band{width:13px;left:calc(50% - 6px)}.game-chest-mark .game-chest-lock{top:18px;width:16px;height:18px;left:calc(50% - 8px)}.game-chest-mark .game-chest-gem{right:7px;top:-3px;font-size:15px}
+.game-launcher small{font-size:clamp(23px,6vw,30px);transform:translateY(-7px)}
+#digButton{width:82%;justify-self:center;min-height:46px;padding:11px 14px;font-size:15px;border-radius:11px}
+.upgrade-action-row{margin-top:0;margin-bottom:14px;align-items:center}.upgrade-action-row .upgrade-action{margin-top:0;flex:1}.upgrade-action-row .quick-toggle{flex:0 0 52px}
+#successItem{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap}.success-item-icon{display:inline-flex;width:38px;height:38px;flex:0 0 38px}.success-item-icon svg{width:100%;height:100%;display:block}
+
 </style></head>
 <body>
 <div class="auth-screen" id="authScreen">
@@ -217,13 +236,13 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 <section id="inventory" class="hidden"><h2>🎒 Инвентарь</h2><div id="items"></div></section>
 <section id="upgrade" class="hidden"><h2>⚡ Апгрейд</h2><div class="section"><p class="muted" style="text-align:center;margin-top:0">Выбери исходный предмет и цель. Комиссия апгрейда — 5%.</p>
 <div class="upgrade-layout"><div class="wheel-wrap"><div class="wheel" id="wheel"></div><div class="special-marker" id="specialMarker" aria-hidden="true">🔮</div><div class="needle" id="needle"></div><div class="wheel-center"><div class="chance" id="chance">—%</div><div class="chance-label">ШАНС УСПЕХА</div><div id="streakIndicator" style="font-size:11px;font-weight:800;color:#31c48d;margin-top:3px;display:none"></div></div></div><div class="wheel-hint" id="wheelHint">Выбери предмет и цель, чтобы рассчитать шанс</div></div>
-<div class="upgrade-controls"><div class="choice-block"><label for="source">ИСХОДНЫЙ ПРЕДМЕТ</label><select id="source"></select><div id="upgradeSource" class="muted"></div></div><div class="choice-block"><label>ЦЕЛЬ АПГРЕЙДА</label><div class="target-list" id="targets"></div></div></div>
-<div class="action-row"><button class="primary upgrade-action" id="upgradeButton" disabled>Апгрейд</button><button class="quick-toggle" id="fastUpgradeToggle" type="button" aria-label="Быстрый апгрейд" aria-pressed="false" title="Быстрый апгрейд"><span class="bolt">⚡</span></button></div><div id="upgradeResult" class="upgrade-result"></div></div></section>
+<div class="action-row upgrade-action-row"><button class="primary upgrade-action" id="upgradeButton" disabled>Апгрейд</button><button class="quick-toggle" id="fastUpgradeToggle" type="button" aria-label="Быстрый апгрейд" aria-pressed="false" title="Быстрый апгрейд"><span class="bolt">⚡</span></button></div><div id="upgradeResult" class="upgrade-result"></div>
+<div class="upgrade-controls"><div class="choice-block"><label for="source">ИСХОДНЫЙ ПРЕДМЕТ</label><select id="source"></select><div id="upgradeSource" class="muted"></div></div><div class="choice-block"><label>ЦЕЛЬ АПГРЕЙДА</label><div class="target-list" id="targets"></div></div></div></div></section>
 <section id="bonus" class="hidden"><h2>🎁 Ежедневный бонус</h2><div class="section"><p>Каждые 24 часа можно получить случайный бонус от <b class="price">50 до 300 апов</b>.</p><button class="primary" id="claim">Забрать бонус</button><div id="bonusStatus" class="muted" style="margin-top:12px"></div></div></section>
 <section id="games" class="hidden">
  <h2 class="games-title">🎮 Игры</h2>
  <div id="gamesHome">
-  <button class="primary game-launcher" id="openTreasureGame" type="button"><span class="game-chest-mark">🪎</span><small>Клад</small></button>
+  <button class="primary game-launcher" id="openTreasureGame" type="button"><span class="game-chest-mark" aria-hidden="true"><i class="game-chest-lid"></i><i class="game-chest-body"><b class="game-chest-band"></b><b class="game-chest-lock"></b></i><b class="game-chest-gem">✦</b></span><small>Клад</small></button>
   <div class="leaderboard">
    <div class="leaderboard-title">📊 Таблица лидеров</div>
    <div id="leaderboardList" class="leaderboard-list"></div>
@@ -324,7 +343,7 @@ function allTargets(value){const a=[];CASES.forEach(c=>c.drops.forEach(d=>{if(d[
 function weightedDrop(drops){let r=Math.random()*100,s=0;for(const d of drops){s+=d[3];if(r<s)return d}return drops[drops.length-1]}
 function showTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['cases','inventory','upgrade','bonus','games','profile'].forEach(x=>$(x).classList.toggle('hidden',x!==tab));$('treasure').classList.add('hidden');if(tab==='games'){$('gamesHome').classList.remove('hidden');if(window.caseupCloud?.refreshLeaderboard)window.caseupCloud.refreshLeaderboard()}if(tab==='upgrade')renderUpgrade();if(tab==='profile'&&window.caseupRenderProfile)window.caseupRenderProfile();if(tab==='profile')renderStats();window.scrollTo({top:0,behavior:'smooth'})}
 function render(){ensureStats();$('balance').textContent=fmt(state.balance);renderCases();renderInventory();renderUpgrade();renderStats();const wait=86400000-(Date.now()-(state.bonusAt||0));$('claim').disabled=wait>0;$('bonusStatus').textContent=wait>0?'Следующий бонус через '+Math.floor(wait/3600000)+' ч. '+Math.floor(wait%3600000/60000)+' мин.':'Бонус доступен!'}
-function renderCases(){const c=CASES[selected];$('caseGrid').innerHTML=CASES.map((x,i)=>`<button class="case ${i===selected?'selected':''}" data-case="${i}"><div class="emoji"><span>🪎</span><i>${x.name.split(' ')[0]}</i></div><b>${x.name.substring(x.name.indexOf(' ')+1)}</b><small>${fmt(x.price)} апов</small></button>`).join('');$('caseName').textContent=c.name;$('casePrice').textContent=fmt(c.price)+' апов';$('open').disabled=spinning||state.balance<c.price;$('fastCaseToggle').disabled=spinning;$('caseContents').innerHTML=c.drops.map(d=>`<div class="drop-card"><span class="item-icon">${iconFor(d[1],d[0])}</span><b>${d[0]} ${d[1]}</b><small>${fmt(d[2])} апов · ${d[3]}%</small></div>`).join('');if(!spinning&&!lastDrop){$('reelWrap').classList.remove('hidden');$('caseResult').classList.add('hidden')}}
+function renderCases(){const c=CASES[selected];$('caseGrid').innerHTML=CASES.map((x,i)=>`<button class="case ${i===selected?'selected':''}" data-case="${i}"><div class="emoji"><span class="case-chest-art" aria-hidden="true"><i class="case-chest-lid"></i><i class="case-chest-body"><b class="case-chest-band"></b><b class="case-chest-lock"></b></i><b class="case-chest-gem">✦</b></span><i class="case-rarity-mark">${x.name.split(' ')[0]}</i></div><b>${x.name.substring(x.name.indexOf(' ')+1)}</b><small>${fmt(x.price)} апов</small></button>`).join('');$('caseName').textContent=c.name;$('casePrice').textContent=fmt(c.price)+' апов';$('open').disabled=spinning||state.balance<c.price;$('fastCaseToggle').disabled=spinning;$('caseContents').innerHTML=c.drops.map(d=>`<div class="drop-card"><span class="item-icon">${iconFor(d[1],d[0])}</span><b>${d[0]} ${d[1]}</b><small>${fmt(d[2])} апов · ${d[3]}%</small></div>`).join('');if(!spinning&&!lastDrop){$('reelWrap').classList.remove('hidden');$('caseResult').classList.add('hidden')}}
 function renderInventory(){ $('items').innerHTML=state.inventory.length?state.inventory.map((it,i)=>`<div class="item"><div class="item-main"><span class="item-icon">${iconFor(it.name,it.rarity)}</span><div><span class="rarity">${it.rarity}</span><b>${it.name}</b><span class="muted">${fmt(it.value)} апов</span></div></div><button class="secondary" data-sell="${i}">Продать</button></div>`).join(''):'<div class="empty">Инвентарь пока пуст. Открой первый кейс 📦</div>'}
 function renderUpgrade(force=false,preferredIndex=null){
  if(upgradeBusy&&!force)return; // Keep the wheel fixed while it spins; refresh controls between chain steps.
@@ -454,7 +473,7 @@ function runUpgradeStep(sourceIndex,target,isChain){
      const streak=$('streakIndicator');
      if(streak&&chainCount>0){streak.textContent='Стрик '+chainCount;streak.style.display='block';streak.style.color=chainCount>=5?'#f0717d':'#31c48d'}
      $('upgradeResult').innerHTML=`<span class="success-text">${special?'🔮 ОСОБЫЙ УСПЕХ!':'✓ УСПЕХ!'} Получен ${target.rarity} ${target.name}${special?' · исходный предмет сохранён':''}</span>`;
-     $('successItem').textContent=`${iconFor(target.name,target.rarity)} ${target.rarity} ${target.name}`;
+     $('successItem').innerHTML=`<span class="success-item-icon">${iconFor(target.name,target.rarity)}</span><span>${target.rarity} ${target.name}</span>`;
      $('successModal').classList.remove('hidden');
      if(special||isChain){
        setTimeout(()=>{$('successModal').classList.add('hidden');
