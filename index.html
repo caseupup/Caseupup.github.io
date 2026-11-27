@@ -195,7 +195,7 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 <section id="profile" class="hidden"><h2>👤 Профиль</h2><div class="section profile-card"><div class="profile-avatar-large" id="profileAvatarLarge">CU</div><div class="profile-username" id="profileNickname">@игрок</div><div class="profile-email" id="profileEmail"></div><div class="muted" style="margin-top:17px">Выбери аватарку</div><input id="avatarFileInput" type="file" accept="image/*" hidden><div class="avatar-options" id="avatarOptions"><button class="avatar-option add-avatar" id="addAvatarButton" type="button" aria-label="Добавить свою аватарку">＋</button><button class="avatar-option" data-avatar="default" aria-label="CaseUp">CU</button><button class="avatar-option" data-avatar="🐍">🐍</button><button class="avatar-option" data-avatar="🎮">🎮</button><button class="avatar-option" data-avatar="💎">💎</button><button class="avatar-option" data-avatar="👑">👑</button></div>
 <div class="stats-title">📊 Статистика</div>
 <div class="profile-stats"><div class="profile-stat"><span>💰 Всего выиграно:</span><strong id="statTotalWon">0</strong></div><div class="profile-stat"><span>🪎 Открыто кейсов:</span><strong id="statCasesOpened">0</strong></div><div class="profile-stat"><span>👾 Сыграно игр:</span><strong id="statGamesPlayed">0</strong></div></div>
-<div class="profile-actions"><button class="test-credit" id="testCreditButton" type="button">🧪 ТЕСТ: +100 000 апов</button><button class="secondary" id="profileLogout" type="button">Выйти из аккаунта</button></div></div></section>
+<div class="profile-actions"><button class="secondary" id="profileLogout" type="button">Выйти из аккаунта</button></div></div></section>
 <div id="logoutConfirm" class="confirm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="logoutConfirmTitle"><div class="confirm-card"><h3 id="logoutConfirmTitle">❗️ Осторожно</h3><p>Вы точно хотите выйти из своего аккаунта?</p><div class="confirm-actions"><button class="primary" id="confirmLogoutYes" type="button">Да</button><button class="secondary" id="confirmLogoutNo" type="button">Нет</button></div></div></div>
 <div class="note">CaseUp — развлекательная игра с виртуальными апами и предметами. Апы нельзя купить или вывести за реальные деньги.<br>Прогресс профиля синхронизируется через облако Firebase.</div>
 </main>
@@ -244,10 +244,13 @@ window.caseupApplyCloudState=function(remote){
  if(!remote||typeof remote.balance!=='number'||!Array.isArray(remote.inventory))return;
  let local=null;try{local=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
  const localSettled=Array.isArray(local?.settledTreasureIds)?local.settledTreasureIds:[];
+ const remotePendingId=remote.pendingTreasure?.id==null?null:String(remote.pendingTreasure.id);
+ const localAlreadySettled=!!(remotePendingId&&localSettled.includes(remotePendingId));
  state={...remote};
  state.settledTreasureIds=[...new Set([...(Array.isArray(remote.settledTreasureIds)?remote.settledTreasureIds:[]),...localSettled])].slice(-30);
- // A locally pending round is newer than a cloud snapshot still waiting for its write.
- if(local&&local.pendingTreasure)state={...local,settledTreasureIds:state.settledTreasureIds};
+ // Keep the locally finalized payout if Firestore delivers an older snapshot
+ // that still contains the same pending round.
+ if(local&&(local.pendingTreasure||localAlreadySettled))state={...local,settledTreasureIds:state.settledTreasureIds};
  const recovered=recoverPendingTreasure(state);
  ensureStats();localStorage.setItem(KEY,JSON.stringify(state));
  render();renderStats();
@@ -473,7 +476,21 @@ $('digButton').addEventListener('click',async()=>{
  $('chest').classList.add('open');$('treasureStatus').textContent=`${phase.icon} ${phase.name.toUpperCase()} КЛАД!`;
  await wait(700);
  $('treasureOverlay').classList.add('hidden');
- state.balance+=payout;state.pendingTreasure=null;save();render();
+ // Finalize this round exactly once. The ID is retained so an older cloud
+ // snapshot cannot make the same pending payout appear again.
+ const settledId=String(state.pendingTreasure?.id||treasureId);
+ state.settledTreasureIds=Array.isArray(state.settledTreasureIds)?state.settledTreasureIds:[];
+ if(!state.settledTreasureIds.includes(settledId)){
+   state.balance+=payout;
+   state.settledTreasureIds.push(settledId);
+   state.settledTreasureIds=state.settledTreasureIds.slice(-30);
+ }
+ state.pendingTreasure=null;
+ save();render();
+ if(window.caseupCloud?.saveStateImmediate){
+   try{await window.caseupCloud.saveStateImmediate(state)}
+   catch(error){console.warn('Treasure payout cloud sync failed:',error);$('treasureHint').textContent='Выигрыш сохранён на устройстве; облачная синхронизация повторится позже.'}
+ }
  $('treasurePayout').textContent=`${fmt(payout)} апов`;
  $('treasureMultiplier').textContent=`${phase.icon} ${phase.name} · Множитель: ${mult.toFixed(2)}х · Ставка: ${fmt(stake)} апов`;
  $('treasureResultModal').classList.remove('hidden');treasureBusy=false;$('digButton').disabled=false;
@@ -672,7 +689,6 @@ async function logoutFromProfile() {
   catch (error) { status(explainError(error), true); }
 }
 $("profileShortcut").addEventListener("click", () => showTab("profile"));
-$("testCreditButton").addEventListener("click",()=>{state.balance+=100000;save();render();$("testCreditButton").textContent="✓ Начислено +100 000 апов";setTimeout(()=>$("testCreditButton").textContent="🧪 ТЕСТ: +100 000 апов",1800)});
 $("profileLogout").addEventListener("click", () => $("logoutConfirm").classList.remove("hidden"));
 $("confirmLogoutYes").addEventListener("click", logoutFromProfile);
 $("confirmLogoutNo").addEventListener("click", () => { $("logoutConfirm").classList.add("hidden"); showTab("profile"); });
