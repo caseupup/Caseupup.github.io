@@ -195,7 +195,7 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 <section id="profile" class="hidden"><h2>👤 Профиль</h2><div class="section profile-card"><div class="profile-avatar-large" id="profileAvatarLarge">CU</div><div class="profile-username" id="profileNickname">@игрок</div><div class="profile-email" id="profileEmail"></div><div class="muted" style="margin-top:17px">Выбери аватарку</div><input id="avatarFileInput" type="file" accept="image/*" hidden><div class="avatar-options" id="avatarOptions"><button class="avatar-option add-avatar" id="addAvatarButton" type="button" aria-label="Добавить свою аватарку">＋</button><button class="avatar-option" data-avatar="default" aria-label="CaseUp">CU</button><button class="avatar-option" data-avatar="🐍">🐍</button><button class="avatar-option" data-avatar="🎮">🎮</button><button class="avatar-option" data-avatar="💎">💎</button><button class="avatar-option" data-avatar="👑">👑</button></div>
 <div class="stats-title">📊 Статистика</div>
 <div class="profile-stats"><div class="profile-stat"><span>💰 Всего выиграно:</span><strong id="statTotalWon">0</strong></div><div class="profile-stat"><span>🪎 Открыто кейсов:</span><strong id="statCasesOpened">0</strong></div><div class="profile-stat"><span>👾 Сыграно игр:</span><strong id="statGamesPlayed">0</strong></div></div>
-<div class="profile-actions"><button class="secondary" id="profileLogout" type="button">Выйти из аккаунта</button></div></div></section>
+<div class="profile-actions"><button class="test-credit" id="testCreditButton" type="button">🧪 ТЕСТ: +100 000 апов</button><button class="secondary" id="profileLogout" type="button">Выйти из аккаунта</button></div></div></section>
 <div id="logoutConfirm" class="confirm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="logoutConfirmTitle"><div class="confirm-card"><h3 id="logoutConfirmTitle">❗️ Осторожно</h3><p>Вы точно хотите выйти из своего аккаунта?</p><div class="confirm-actions"><button class="primary" id="confirmLogoutYes" type="button">Да</button><button class="secondary" id="confirmLogoutNo" type="button">Нет</button></div></div></div>
 <div class="note">CaseUp — развлекательная игра с виртуальными апами и предметами. Апы нельзя купить или вывести за реальные деньги.<br>Прогресс профиля синхронизируется через облако Firebase.</div>
 </main>
@@ -231,7 +231,8 @@ let state=load(),selected=0,lastDrop=null,chosenTarget=null,spinning=false,upgra
 function moscowDayKey(date=new Date()){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Moscow',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);const v={};parts.forEach(p=>v[p.type]=p.value);return `${v.year}-${v.month}-${v.day}`}
 function ensureStats(){if(!state.stats||typeof state.stats!=='object')state.stats={totalWon:0,casesOpened:0,gamesPlayed:0,dailyWon:0,dailyDate:moscowDayKey()};state.stats.totalWon=Math.max(0,Number(state.stats.totalWon)||0);state.stats.casesOpened=Math.max(0,Number(state.stats.casesOpened)||0);state.stats.gamesPlayed=Math.max(0,Number(state.stats.gamesPlayed)||0);if(state.stats.dailyDate!==moscowDayKey()){state.stats.dailyDate=moscowDayKey();state.stats.dailyWon=0}else state.stats.dailyWon=Math.max(0,Number(state.stats.dailyWon)||0)}
 function addWon(amount){ensureStats();const gain=Math.max(0,Math.floor(Number(amount)||0));state.stats.totalWon+=gain;state.stats.dailyWon+=gain}
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&typeof x.balance==='number'&&Array.isArray(x.inventory)){if(x.pendingTreasure){x.balance+=Number(x.pendingTreasure.payout)||0;x.lastTreasureRecovery=Date.now();x.pendingTreasure=null;localStorage.setItem(KEY,JSON.stringify(x))}state=x;ensureStats();return state}}catch(e){}return{balance:500,inventory:[],bonusAt:0,stats:{totalWon:0,casesOpened:0,gamesPlayed:0,dailyWon:0,dailyDate:moscowDayKey()}}}
+function recoverPendingTreasure(target){if(!target||!target.pendingTreasure)return false;const pending=target.pendingTreasure;const id=String(pending.id||`${pending.stake||0}:${pending.payout||0}:${pending.phase||0}`);const settled=Array.isArray(target.settledTreasureIds)?target.settledTreasureIds:[];if(!settled.includes(id)){target.balance+=Number(pending.payout)||0;settled.push(id)}target.settledTreasureIds=settled.slice(-30);target.pendingTreasure=null;target.lastTreasureRecovery=Date.now();return true}
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x&&typeof x.balance==='number'&&Array.isArray(x.inventory)){if(recoverPendingTreasure(x))localStorage.setItem(KEY,JSON.stringify(x));state=x;ensureStats();return state}}catch(e){}return{balance:500,inventory:[],bonusAt:0,stats:{totalWon:0,casesOpened:0,gamesPlayed:0,dailyWon:0,dailyDate:moscowDayKey()}}}
 function save(){
  ensureStats();localStorage.setItem(KEY,JSON.stringify(state));
  if(window.caseupCloud&&window.caseupCloud.saveState)window.caseupCloud.saveState(state);
@@ -241,9 +242,17 @@ function renderStats(){ensureStats();const st=state.stats;$('statTotalWon').text
 window.caseupRenderLeaderboard=function(rows,error=''){const host=$('leaderboardList');if(!host)return;if(error&&(!rows||!rows.length)){host.innerHTML=`<div class="empty">Не удалось загрузить таблицу лидеров. ${String(error).replace(/[<>]/g,'')}</div>`;return}const warning=error?`<div class="empty">${String(error).replace(/[<>]/g,'')}</div>`:'';if(!rows||!rows.length){host.innerHTML=warning||'<div class="empty">Пока нет результатов за сегодня. Будь первым!</div>';return}host.innerHTML=warning+rows.slice(0,5).map((r,i)=>`<div class="leaderboard-row"><span class="rank">${i+1}.</span><span class="player">@${String(r.username||'Игрок').replace(/[<>]/g,'')}</span><span class="score">${fmt(r.totalWon||0)} апов</span></div>`).join('')};
 window.caseupApplyCloudState=function(remote){
  if(!remote||typeof remote.balance!=='number'||!Array.isArray(remote.inventory))return;
- state={...remote};ensureStats();
- localStorage.setItem(KEY,JSON.stringify(state));
+ let local=null;try{local=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+ const localSettled=Array.isArray(local?.settledTreasureIds)?local.settledTreasureIds:[];
+ state={...remote};
+ state.settledTreasureIds=[...new Set([...(Array.isArray(remote.settledTreasureIds)?remote.settledTreasureIds:[]),...localSettled])].slice(-30);
+ // A locally pending round is newer than a cloud snapshot still waiting for its write.
+ if(local&&local.pendingTreasure)state={...local,settledTreasureIds:state.settledTreasureIds};
+ const recovered=recoverPendingTreasure(state);
+ ensureStats();localStorage.setItem(KEY,JSON.stringify(state));
  render();renderStats();
+ // Persist the recovered/settled state so another device cannot recover the same round again.
+ if(recovered&&window.caseupCloud?.saveStateImmediate)window.caseupCloud.saveStateImmediate(state).catch(e=>console.warn('Treasure recovery cloud sync failed:',e));
 };
 function fmt(n){return Math.round(n).toLocaleString('ru-RU')}
 function iconFor(name,rarity=''){const s=(name+' '+rarity).toLowerCase();if(/амулет/.test(s))return'🔮';if(/меч/.test(s))return'⚔️';if(/броник/.test(s))return'🛡️';if(/руна/.test(s))return'✨';if(/алмаз|сапфир|изумруд|аметист|нефрит|камень/.test(s))return'💎';if(/золото|руда/.test(s))return'🪙';if(/вода/.test(s))return'💧';return'⭐'}
@@ -278,7 +287,7 @@ function rarityGlow(rarity){const r=(rarity||'').toLowerCase();if(r.includes('л
 function closeRareReveal(){const el=$('rareReveal');el.classList.add('hidden');el.classList.remove('play','open-chest','reeling','revealed');$('rareRevealActions').classList.remove('ready');$('rareReveal').setAttribute('aria-hidden','true')}
 function sellCurrentDrop(){if(!lastDrop)return;const idx=state.inventory.lastIndexOf(lastDrop);if(idx>=0){state.inventory.splice(idx,1);state.balance+=lastDrop.value}lastDrop=null;closeRareReveal();$('open').classList.remove('hidden');$('caseResult').classList.add('hidden');$('reelWrap').classList.remove('hidden');save();render()}
 function openAnotherCase(){closeRareReveal();lastDrop=null;$('open').classList.remove('hidden');$('caseResult').classList.add('hidden');$('reelWrap').classList.remove('hidden');renderCases();$('open').click()}
-function showCaseResult(d){spinning=false;$('open').disabled=state.balance<CASES[selected].price;$('reelWrap').classList.add('hidden');$('caseResult').classList.remove('hidden');$('caseResult').innerHTML=`<div class="result-panel"><div class="stage-kicker">ТВОЙ ПРЕДМЕТ</div><div class="result-icon">${iconFor(d[1],d[0])}</div><div class="result-name">${d[0]} ${d[1]}</div><div class="result-value">${fmt(d[2])} апов</div></div><div class="actions"><button class="secondary" id="sellDrop">Продать · ${fmt(d[2])}</button><button class="primary" id="openAgain">Открыть ещё</button></div>`;$('open').classList.add('hidden');$('openAgain').addEventListener('click',openAnotherCase);$('sellDrop').addEventListener('click',sellCurrentDrop);}
+function showCaseResult(d){spinning=false;$('fastCaseToggle').disabled=false;$('open').disabled=state.balance<CASES[selected].price;$('reelWrap').classList.add('hidden');$('caseResult').classList.remove('hidden');$('caseResult').innerHTML=`<div class="result-panel"><div class="stage-kicker">ТВОЙ ПРЕДМЕТ</div><div class="result-icon">${iconFor(d[1],d[0])}</div><div class="result-name">${d[0]} ${d[1]}</div><div class="result-value">${fmt(d[2])} апов</div></div><div class="actions"><button class="secondary" id="sellDrop">Продать · ${fmt(d[2])}</button><button class="primary" id="openAgain">Открыть ещё</button></div>`;$('open').classList.add('hidden');$('openAgain').addEventListener('click',openAnotherCase);$('sellDrop').addEventListener('click',sellCurrentDrop);}
 function startRareReveal(d,track,finalDistance,caseDuration){
  const overlay=$('rareReveal'),glow=rarityGlow(d[0]);
  overlay.style.setProperty('--rare-glow',glow);
@@ -318,7 +327,7 @@ function startRareReveal(d,track,finalDistance,caseDuration){
    setTimeout(()=>{
      overlay.classList.remove('reeling');
      overlay.classList.add('revealed');
-     setTimeout(()=>{$('rareRevealActions').classList.add('ready');spinning=false;},950);
+     setTimeout(()=>{$('rareRevealActions').classList.add('ready');spinning=false;$('fastCaseToggle').disabled=false;},950);
      // If the player does nothing, return to the regular result card.
      setTimeout(()=>{if(!overlay.classList.contains('hidden')){closeRareReveal();showCaseResult(d)}},3000);
    },4200);
@@ -443,7 +452,10 @@ $('digButton').addEventListener('click',async()=>{
  treasureBusy=true;$('digButton').disabled=true;$('treasureHint').textContent='';
  const phaseIndex=chooseTreasurePhase(),phase=TREASURE_PHASES[phaseIndex];
  const mult=phase.min+Math.random()*(phase.max-phase.min),payout=Math.floor(stake*mult);
- state.balance-=stake;state.pendingTreasure={payout,mult,stake,phase:phaseIndex+1};ensureStats();state.stats.gamesPlayed++;addWon(payout-stake);save();render();
+ const treasureId=`${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
+ state.balance-=stake;state.pendingTreasure={id:treasureId,payout,mult,stake,phase:phaseIndex+1};ensureStats();state.stats.gamesPlayed++;addWon(payout-stake);save();render();
+ // Ensure the stake and recoverable payout reach the cloud before the result animation begins.
+ if(window.caseupCloud?.saveStateImmediate){try{await window.caseupCloud.saveStateImmediate(state)}catch(error){console.warn('Treasure pending state cloud sync failed:',error);$('treasureHint').textContent='Сохранение на устройстве выполнено; облачная синхронизация ожидает подключения.'}}
  $('treasureOverlay').classList.remove('hidden');$('chest').classList.remove('open');$('chest').style.animation='none';void $('chest').offsetWidth;$('chest').style.animation='';
  $('phaseCircle').style.background='#8c969f';$('phaseCircle').style.borderColor='#d4d9df';$('phaseCircle').style.boxShadow='0 0 0 4px #ffffff12';
  $('treasureStatus').textContent='Сундук найден…';$('treasureMult').textContent='Фаза 1 из 10';
@@ -479,7 +491,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, runTransaction, serverTimestamp,
-  collection, query, orderBy, limit, getDocs
+  collection, query, orderBy, limit, getDocs, onSnapshot
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -505,6 +517,7 @@ try {
 const $ = id => document.getElementById(id);
 let currentUser = null;
 let cloudTimer = null;
+let leaderboardUnsubscribe = null;
 let currentUsername = "";
 let profileSetupUser = null;
 let pendingUsername = "";
@@ -659,6 +672,7 @@ async function logoutFromProfile() {
   catch (error) { status(explainError(error), true); }
 }
 $("profileShortcut").addEventListener("click", () => showTab("profile"));
+$("testCreditButton").addEventListener("click",()=>{state.balance+=100000;save();render();$("testCreditButton").textContent="✓ Начислено +100 000 апов";setTimeout(()=>$("testCreditButton").textContent="🧪 ТЕСТ: +100 000 апов",1800)});
 $("profileLogout").addEventListener("click", () => $("logoutConfirm").classList.remove("hidden"));
 $("confirmLogoutYes").addEventListener("click", logoutFromProfile);
 $("confirmLogoutNo").addEventListener("click", () => { $("logoutConfirm").classList.add("hidden"); showTab("profile"); });
@@ -723,12 +737,30 @@ window.caseupCloud = {
         console.error("CaseUp cloud save failed:", error);
         status("Не удалось сохранить прогресс в облако. Проверь подключение.", true);
       }
-    }, 450);
+    }, 120);
+  },
+  async saveStateImmediate(value) {
+    const user = auth.currentUser;
+    if (!user || !user.emailVerified || !currentUsername) return false;
+    clearTimeout(cloudTimer);
+    const snapshot = JSON.parse(JSON.stringify(value));
+    await setDoc(doc(db, "users", user.uid), { state: snapshot, updatedAt: serverTimestamp() }, { merge: true });
+    await this.syncLeaderboard(snapshot);
+    return true;
   },
   async refreshLeaderboard() {
     try {
       const today = moscowDayKey();
       const q = query(collection(db, "dailyLeaderboards", today, "players"), orderBy("totalWon", "desc"), limit(5));
+      if (!leaderboardUnsubscribe) {
+        leaderboardUnsubscribe = onSnapshot(q, snap => {
+          const liveRows = snap.docs.map(d => d.data());
+          if (window.caseupRenderLeaderboard) window.caseupRenderLeaderboard(liveRows, leaderboardWriteError);
+        }, error => {
+          console.error("Leaderboard listener failed:", error);
+          if (window.caseupRenderLeaderboard) window.caseupRenderLeaderboard([], leaderboardWriteError || "Не удалось обновить таблицу лидеров. Проверь интернет и правила Firestore.");
+        });
+      }
       const snap = await getDocs(q);
       const rows = snap.docs.map(d => d.data());
       if (window.caseupRenderLeaderboard) window.caseupRenderLeaderboard(rows, leaderboardWriteError);
