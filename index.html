@@ -691,31 +691,38 @@ function avatarHTML(value,image=""){ if(image)return `<img src="${image}" alt="�
 function paintAvatar(){ $("headerAvatar").innerHTML = avatarHTML(currentAvatar,currentAvatarImage); $("profileAvatarLarge").innerHTML = avatarHTML(currentAvatar,currentAvatarImage); document.querySelectorAll("[data-avatar]").forEach(b=>b.classList.toggle("selected",!currentAvatarImage&&b.dataset.avatar===currentAvatar)); }
 window.caseupRenderProfile = function(){ $("profileNickname").textContent = currentUsername ? "@"+currentUsername : "Профиль"; $("profileEmail").textContent = currentUser?.email || ""; paintAvatar(); };
 function transferStatus(message,error=false){const el=$('transferStatus');if(!el)return;el.textContent=message;el.className='transfer-status'+(error?' error':message?' success':'')}
+// Вставь сюда публичный URL опубликованного Cloudflare Worker.
+const TRANSFER_WORKER_URL = "https://caseup-transfer.pasamotylev-com.workers.dev";
+
 $('transferButton').addEventListener('click',async()=>{
- const amount=Number($('transferAmount').value),raw=$('transferUsername').value.trim().replace(/^@/,''),name=raw.toLowerCase();
+ const amount=Number($('transferAmount').value),raw=$('transferUsername').value.trim().replace(/^@/,'');
  if(!currentUser||!currentUsername){transferStatus('Сначала войдите в аккаунт.',true);return}
  if(!Number.isSafeInteger(amount)||amount<=0){transferStatus('Введите целое количество апов больше нуля.',true);return}
  if(!validUsername(raw)){transferStatus('Юзернейм должен содержать 3–16 символов: латиница, цифры или _.',true);return}
- if(name===currentUsername.toLowerCase()){transferStatus('Нельзя передать апы самому себе.',true);return}
+ if(raw.toLowerCase()===currentUsername.toLowerCase()){transferStatus('Нельзя передать апы самому себе.',true);return}
  if(amount>state.balance){transferStatus('На балансе недостаточно апов.',true);return}
+ if(!TRANSFER_WORKER_URL.startsWith('https://')){transferStatus('Сначала подключим адрес Cloudflare Worker.',true);return}
  const btn=$('transferButton');btn.disabled=true;btn.textContent='Передаём…';transferStatus('Проверяем игрока и выполняем перевод…');
  try{
-  const senderRef=doc(db,'users',currentUser.uid),nameRef=doc(db,'usernames',name);
-  await runTransaction(db,async tx=>{
-   const nameSnap=await tx.get(nameRef);if(!nameSnap.exists())throw new Error('Пользователь с таким юзернеймом не существует.');
-   const recipientUid=nameSnap.data().uid;if(!recipientUid||recipientUid===currentUser.uid)throw new Error('Некорректный получатель.');
-   const recipientRef=doc(db,'users',recipientUid);const senderSnap=await tx.get(senderRef),recipientSnap=await tx.get(recipientRef);
-   if(!senderSnap.exists()||!recipientSnap.exists())throw new Error('Не удалось найти профиль отправителя или получателя.');
-   const senderData=senderSnap.data(),recipientData=recipientSnap.data(),senderState=senderData.state||{},recipientState=recipientData.state||{};
-   if(senderData.username?.toLowerCase()!==currentUsername.toLowerCase())throw new Error('Профиль отправителя не совпадает с текущим аккаунтом.');
-   const senderBalance=Number(senderState.balance)||0,recipientBalance=Number(recipientState.balance)||0;
-   if(senderBalance<amount)throw new Error('На балансе недостаточно апов.');
-   tx.update(senderRef,{ 'state.balance':senderBalance-amount,updatedAt:serverTimestamp() });
-   tx.update(recipientRef,{ 'state.balance':recipientBalance+amount,updatedAt:serverTimestamp() });
+  const idToken=await currentUser.getIdToken();
+  const response=await fetch(TRANSFER_WORKER_URL,{
+   method:'POST',
+   headers:{'Content-Type':'application/json','Authorization':`Bearer ${idToken}`},
+   body:JSON.stringify({amount,username:raw})
   });
-  state.balance-=amount;save();$('transferAmount').value='';transferStatus(`Успешно передано ${fmt(amount)} апов игроку @${raw}.`);
- }catch(error){console.error('Aps transfer failed:',error);transferStatus(error.code==='permission-denied'?'Firestore запрещает перевод апов: нужна серверная операция перевода и соответствующие правила доступа. Изменять баланс напрямую из браузера небезопасно.':(error.message||'Не удалось выполнить перевод.'),true)}
- finally{btn.disabled=false;btn.textContent='Передать'}
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||result.ok!==true)throw new Error(result.error||'Не удалось выполнить перевод.');
+  if(!Number.isSafeInteger(result.balance)||result.balance<0)throw new Error('Сервер вернул некорректный баланс. Обнови страницу и проверь профиль.');
+  // Сервер уже записал баланс в Firestore. Не вызываем save(), чтобы не отправить старое состояние.
+  state.balance=result.balance;
+  localStorage.setItem(KEY,JSON.stringify(state));
+  render();
+  $('transferAmount').value='';
+  transferStatus(`Успешно передано ${fmt(amount)} апов игроку @${raw}.`);
+ }catch(error){
+  console.error('Aps transfer failed:',error);
+  transferStatus(error.message||'Не удалось выполнить перевод. Проверь интернет и попробуй ещё раз.',true);
+ }finally{btn.disabled=false;btn.textContent='Передать'}
 });
 
 function status(message, isError=false) {
