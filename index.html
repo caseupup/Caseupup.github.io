@@ -437,7 +437,7 @@ function makeReel(winner,caseIndex=selected){const c=CASES[caseIndex],track=$('r
 $('caseGrid').addEventListener('click',e=>{const b=e.target.closest('[data-case]');if(!b)return;selected=+b.dataset.case;if(spinning){renderCases();return;}lastDrop=null;$('open').classList.remove('hidden');$('caseResult').classList.add('hidden');$('reelWrap').classList.remove('hidden');renderCases();idleCaseReel()});
 function rarityGlow(rarity){const r=(rarity||'').toLowerCase();if(r.includes('легендар'))return '#ffd45c';if(r.includes('эпич'))return '#b78cff';if(r.includes('мифич'))return '#6d9cff';if(r.includes('вечн'))return '#ff6b91';if(r.includes('редк'))return '#63d4ff';return '#c7d3df'}
 function closeRareReveal(){const el=$('rareReveal');el.classList.add('hidden');el.classList.remove('play','open-chest','reeling','revealed');$('rareRevealActions').classList.remove('ready');$('rareReveal').setAttribute('aria-hidden','true')}
-function sellCurrentDrop(){if(!lastDrop)return;const sold={rarity:lastDrop.rarity,name:lastDrop.name,value:Number(lastDrop.value)||0};let idx=state.inventory.lastIndexOf(lastDrop);if(idx<0){for(let i=state.inventory.length-1;i>=0;i--){const it=state.inventory[i];if(it&&it.rarity===sold.rarity&&it.name===sold.name&&Number(it.value)===sold.value){idx=i;break}}}if(idx>=0)state.inventory.splice(idx,1);state.balance+=sold.value;lastDrop=null;closeRareReveal();$('open').classList.remove('hidden');$('caseResult').classList.add('hidden');$('reelWrap').classList.remove('hidden');save();render();idleCaseReel()}
+function sellCurrentDrop(){if(!lastDrop)return;const dropId=lastDrop.dropId;const idx=dropId?state.inventory.findIndex(it=>it&&it.dropId===dropId):state.inventory.indexOf(lastDrop);if(idx<0){lastDrop=null;closeRareReveal();$('caseResult').classList.add('hidden');return}const sold=state.inventory.splice(idx,1)[0];state.balance+=Math.max(0,Number(sold.value)||0);lastDrop=null;closeRareReveal();$('open').classList.remove('hidden');$('caseResult').classList.add('hidden');$('reelWrap').classList.remove('hidden');save();render();idleCaseReel()}
 function openAnotherCase(){closeRareReveal();lastDrop=null;$('open').classList.remove('hidden');$('caseResult').classList.add('hidden');$('reelWrap').classList.remove('hidden');renderCases();idleCaseReel();requestAnimationFrame(()=>$('open').click())}
 function showCaseResult(d){spinning=false;$('fastCaseToggle').disabled=false;$('open').disabled=state.balance<CASES[selected].price;$('reelWrap').classList.add('hidden');$('caseResult').classList.remove('hidden');$('caseResult').innerHTML=`<div class="result-panel"><div class="stage-kicker">ТВОЙ ПРЕДМЕТ</div><div class="result-icon">${iconFor(d[1],d[0])}</div><div class="result-name">${d[0]} ${d[1]}</div><div class="result-value">${fmt(d[2])} апов</div></div><div class="actions"><button class="secondary" id="sellDrop">Продать · ${fmt(d[2])}</button><button class="primary" id="openAgain">Открыть ещё</button></div>`;$('open').classList.add('hidden');$('openAgain').addEventListener('click',openAnotherCase);$('sellDrop').addEventListener('click',sellCurrentDrop);}
 function startRareReveal(d,track,finalDistance,caseDuration,openingCaseIndex){
@@ -490,7 +490,7 @@ $('rareSell').addEventListener('click',sellCurrentDrop);
 $('rareOpenAgain').addEventListener('click',openAnotherCase);
 $('open').addEventListener('click',()=>{
  if(spinning)return;const openingCaseIndex=selected,c=CASES[openingCaseIndex];if(state.balance<c.price)return;
- state.balance-=c.price;const d=weightedDrop(c.drops),winner=makeReel(d,openingCaseIndex);lastDrop={rarity:d[0],name:d[1],value:d[2]};
+ state.balance-=c.price;const d=weightedDrop(c.drops),winner=makeReel(d,openingCaseIndex);lastDrop={dropId:'drop-'+Date.now()+'-'+Math.random().toString(36).slice(2),rarity:d[0],name:d[1],value:d[2]};
  // Case statistics count the positive difference between the drop value and the case price.
  ensureStats();state.stats.casesOpened++;addWon(d[2]-c.price);
  // Save the item and statistics before any animation starts, so a refresh cannot lose the result.
@@ -514,7 +514,7 @@ function sellAllInventory(){
  if(upgradeBusy||!state.inventory.length)return;
  const soldItems=state.inventory.slice();
  const total=soldItems.reduce((sum,it)=>sum+Math.max(0,Number(it?.value)||0),0);
- if(lastDrop&&soldItems.includes(lastDrop))lastDrop=null;
+ if(lastDrop&&soldItems.some(it=>it===lastDrop||(lastDrop.dropId&&it?.dropId===lastDrop.dropId)))lastDrop=null;
  state.inventory=[];
  state.balance+=total;
  $('sellAllConfirm').classList.add('hidden');
@@ -524,7 +524,7 @@ $('sellAllItems').addEventListener('click',()=>{if(!upgradeBusy&&state.inventory
 $('confirmSellAllYes').addEventListener('click',sellAllInventory);
 $('confirmSellAllNo').addEventListener('click',()=>$('sellAllConfirm').classList.add('hidden'));
 $('sellAllConfirm').addEventListener('click',e=>{if(e.target===$('sellAllConfirm'))$('sellAllConfirm').classList.add('hidden')});
-$('items').addEventListener('click',e=>{const b=e.target.closest('[data-sell]');if(!b||upgradeBusy)return;const it=state.inventory.splice(+b.dataset.sell,1)[0];if(!it)return;state.balance+=it.value;save();render()});
+$('items').addEventListener('click',e=>{const b=e.target.closest('[data-sell]');if(!b||upgradeBusy)return;const it=state.inventory.splice(+b.dataset.sell,1)[0];if(!it)return;if(lastDrop&&(it===lastDrop||(lastDrop.dropId&&it.dropId===lastDrop.dropId)))lastDrop=null;state.balance+=Math.max(0,Number(it.value)||0);save();render()});
 $('source').addEventListener('change',()=>{chosenTarget=null;$('upgradeResult').textContent='';$('needle').style.transition='none';$('needle').style.transform='rotate(0deg)';renderUpgrade()});
 $('targets').addEventListener('click',e=>{const b=e.target.closest('[data-target]');if(!b||upgradeBusy)return;const [rarity,name,value]=decodeURIComponent(b.dataset.target).split('|');chosenTarget={rarity,name,value:Number(value)};$('upgradeResult').textContent='';$('needle').style.transition='none';$('needle').style.transform='rotate(0deg)';renderUpgrade()});
 function pickNextTarget(value){return allTargets(value).find(t=>{const c=value/t.value*100;return c>=9&&c<=80})||allTargets(value).find(t=>value/t.value*100<=80)||null}
