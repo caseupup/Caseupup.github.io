@@ -137,6 +137,26 @@ h2{font-size:19px;margin:0 0 12px}.muted,.statlabel{color:var(--muted);font-size
 .rare-chest-lid{background:linear-gradient(100deg,color-mix(in srgb,var(--case-chest,#a56a2c) 45%,#101722),var(--case-chest,#a56a2c) 40%,color-mix(in srgb,var(--case-chest,#a56a2c) 65%,#f5e1b5))!important;border-color:var(--case-chest,#a56a2c)!important}
 .rare-chest-mark{position:absolute;z-index:4;left:50%;top:48%;transform:translate(-50%,-50%);font-size:30px;filter:drop-shadow(0 2px 4px #000);text-shadow:0 1px 5px #fff8;pointer-events:none}
 
+
+/* CaseUp bugfixes: clean item preview, single treasure chest, stable reel */
+#upgradeSource{display:flex;align-items:center;gap:9px;margin-top:8px;min-height:44px;padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);font-size:12px}
+#upgradeSource .upgrade-source-icon{display:inline-flex;width:38px;height:38px;flex:0 0 38px;font-size:0}
+#upgradeSource .upgrade-source-icon svg{width:100%;height:100%}
+#upgradeSource .upgrade-source-label{min-width:0;overflow-wrap:anywhere}
+.game-launcher:before,.game-launcher:after{content:none!important;display:none!important}
+.game-launcher{width:calc(50% - 5px);aspect-ratio:1/1;min-height:0;padding:8px;position:relative;display:flex;align-items:center;justify-content:flex-end;gap:0;overflow:hidden;background:linear-gradient(145deg,#26394a,#101b28);border:1px solid #53677a;box-shadow:inset 0 1px 0 #ffffff20,0 9px 24px #0006}
+.game-chest-mark{position:absolute;z-index:2;left:50%;top:40%;transform:translate(-50%,-50%);font-size:clamp(112px,32vw,150px);line-height:1;filter:drop-shadow(0 9px 9px #000a);text-shadow:none}
+.game-launcher small{z-index:4;align-self:flex-start;max-width:none;margin-top:auto;margin-bottom:3px;font-size:clamp(25px,7vw,34px);font-weight:1000;letter-spacing:.5px;color:#c5d0d1;text-shadow:0 2px 3px #000,0 0 8px #000;transform:translateY(-8px);white-space:nowrap}
+.case{min-height:138px;padding:9px 7px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.case.selected{padding:8px 6px}
+.case .emoji{height:76px;width:100%;display:flex;align-items:center;justify-content:center;position:relative;font-size:0}
+.case .emoji span{font-size:61px;line-height:1;filter:drop-shadow(0 7px 7px #0009)}
+.case .emoji i{position:absolute;right:5px;top:3px;font-size:17px;font-style:normal;filter:drop-shadow(0 2px 3px #000)}
+.case b{font-size:13px;margin:0;text-align:center}
+.case small{font-size:11px}
+.reel-track{will-change:transform;backface-visibility:hidden;transform:translate3d(0,0,0)}
+.treasure-stage .chest{font-size:100px}
+
 </style></head>
 <body>
 <div class="auth-screen" id="authScreen">
@@ -304,7 +324,7 @@ function allTargets(value){const a=[];CASES.forEach(c=>c.drops.forEach(d=>{if(d[
 function weightedDrop(drops){let r=Math.random()*100,s=0;for(const d of drops){s+=d[3];if(r<s)return d}return drops[drops.length-1]}
 function showTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));['cases','inventory','upgrade','bonus','games','profile'].forEach(x=>$(x).classList.toggle('hidden',x!==tab));$('treasure').classList.add('hidden');if(tab==='games'){$('gamesHome').classList.remove('hidden');if(window.caseupCloud?.refreshLeaderboard)window.caseupCloud.refreshLeaderboard()}if(tab==='upgrade')renderUpgrade();if(tab==='profile'&&window.caseupRenderProfile)window.caseupRenderProfile();if(tab==='profile')renderStats();window.scrollTo({top:0,behavior:'smooth'})}
 function render(){ensureStats();$('balance').textContent=fmt(state.balance);renderCases();renderInventory();renderUpgrade();renderStats();const wait=86400000-(Date.now()-(state.bonusAt||0));$('claim').disabled=wait>0;$('bonusStatus').textContent=wait>0?'Следующий бонус через '+Math.floor(wait/3600000)+' ч. '+Math.floor(wait%3600000/60000)+' мин.':'Бонус доступен!'}
-function renderCases(){const c=CASES[selected];$('caseGrid').innerHTML=CASES.map((x,i)=>`<button class="case ${i===selected?'selected':''}" data-case="${i}"><div class="emoji"><span>${x.name.split(' ')[0]}</span></div><b>${x.name.substring(x.name.indexOf(' ')+1)}</b><small>${fmt(x.price)} апов</small></button>`).join('');$('caseName').textContent=c.name;$('casePrice').textContent=fmt(c.price)+' апов';$('open').disabled=spinning||state.balance<c.price;$('fastCaseToggle').disabled=spinning;$('caseContents').innerHTML=c.drops.map(d=>`<div class="drop-card"><span class="item-icon">${iconFor(d[1],d[0])}</span><b>${d[0]} ${d[1]}</b><small>${fmt(d[2])} апов · ${d[3]}%</small></div>`).join('');if(!spinning&&!lastDrop){$('reelWrap').classList.remove('hidden');$('caseResult').classList.add('hidden')}}
+function renderCases(){const c=CASES[selected];$('caseGrid').innerHTML=CASES.map((x,i)=>`<button class="case ${i===selected?'selected':''}" data-case="${i}"><div class="emoji"><span>🪎</span><i>${x.name.split(' ')[0]}</i></div><b>${x.name.substring(x.name.indexOf(' ')+1)}</b><small>${fmt(x.price)} апов</small></button>`).join('');$('caseName').textContent=c.name;$('casePrice').textContent=fmt(c.price)+' апов';$('open').disabled=spinning||state.balance<c.price;$('fastCaseToggle').disabled=spinning;$('caseContents').innerHTML=c.drops.map(d=>`<div class="drop-card"><span class="item-icon">${iconFor(d[1],d[0])}</span><b>${d[0]} ${d[1]}</b><small>${fmt(d[2])} апов · ${d[3]}%</small></div>`).join('');if(!spinning&&!lastDrop){$('reelWrap').classList.remove('hidden');$('caseResult').classList.add('hidden')}}
 function renderInventory(){ $('items').innerHTML=state.inventory.length?state.inventory.map((it,i)=>`<div class="item"><div class="item-main"><span class="item-icon">${iconFor(it.name,it.rarity)}</span><div><span class="rarity">${it.rarity}</span><b>${it.name}</b><span class="muted">${fmt(it.value)} апов</span></div></div><button class="secondary" data-sell="${i}">Продать</button></div>`).join(''):'<div class="empty">Инвентарь пока пуст. Открой первый кейс 📦</div>'}
 function renderUpgrade(force=false,preferredIndex=null){
  if(upgradeBusy&&!force)return; // Keep the wheel fixed while it spins; refresh controls between chain steps.
@@ -312,7 +332,7 @@ function renderUpgrade(force=false,preferredIndex=null){
  $('source').innerHTML=state.inventory.map((it,i)=>`<option value="${i}">${it.rarity} ${it.name} — ${fmt(it.value)}</option>`).join('');
  if(old!==''&&state.inventory[Number(old)])$('source').value=old;
  const i=Number($('source').value),src=state.inventory[i];
- $('upgradeSource').textContent=src?`${iconFor(src.name,src.rarity)} ${src.rarity} ${src.name} · ${fmt(src.value)} апов`:'Инвентарь пуст — сначала получи предмет';
+ $('upgradeSource').innerHTML=src?`<span class="upgrade-source-icon">${iconFor(src.name,src.rarity)}</span><span class="upgrade-source-label">${src.rarity} ${src.name} · ${fmt(src.value)} апов</span>`:'Инвентарь пуст — сначала получи предмет';
  const targets=src?allTargets(src.value).filter(t=>src.value/t.value*100<=80):[];
  if(chosenTarget&&!targets.some(t=>t.rarity===chosenTarget.rarity&&t.name===chosenTarget.name))chosenTarget=null;
  $('targets').innerHTML=targets.length?targets.map(t=>{const selected=chosenTarget&&chosenTarget.rarity===t.rarity&&chosenTarget.name===t.name;const ch=Math.min(80,src.value/t.value*100)*0.95;return `<button class="target ${selected?'selected':''}" data-target="${encodeURIComponent(t.rarity+'|'+t.name+'|'+t.value)}"><span class="target-icon">${iconFor(t.name,t.rarity)}</span><span style="min-width:0;flex:1"><b>${t.rarity} ${t.name}</b><small>${fmt(t.value)} апов · ${ch.toFixed(1)}%</small></span></button>`}).join(''):`<div class="empty" style="grid-column:1/-1">${src?'Нет доступных целей для этого предмета':'Сначала получи предмет'}</div>`;
@@ -326,7 +346,7 @@ function renderUpgrade(force=false,preferredIndex=null){
  const streak=$('streakIndicator');if(streak){if(chainCount>0&&upgradeBusy){streak.textContent='Стрик '+chainCount;streak.style.display='block';streak.style.color=chainCount>=5?'#f0717d':'#31c48d'}else{streak.textContent='';streak.style.display='none'}}
 }
 function idleCaseReel(){const c=CASES[selected],arr=[];for(let i=0;i<12;i++)arr.push(c.drops[i%c.drops.length]);const doubled=[...arr,...arr];$('reelTrack').innerHTML=doubled.map(d=>`<div class="reel-item"><span class="item-icon">${iconFor(d[1],d[0])}</span><small>${d[1]}</small></div>`).join('');$('reelTrack').style.transition='none';$('reelTrack').style.transform='translateX(0px)';$('reelTrack').classList.add('idle');$('reelWrap').classList.remove('hidden');$('caseResult').classList.add('hidden')}
-function makeReel(winner){const c=CASES[selected],track=$('reelTrack'),wrap=$('reelWrap');const computed=getComputedStyle(track).transform;let currentX=0;if(computed&&computed!=='none'){const m=new DOMMatrixReadOnly(computed);currentX=m.m41}track.classList.remove('idle');track.style.transition='none';track.style.transform=`translateX(${currentX}px)`;const winnerIndex=track.children.length+34;const arr=[];for(let i=0;i<42;i++)arr.push(i===34?winner:c.drops[Math.floor(Math.random()*c.drops.length)]);track.insertAdjacentHTML('beforeend',arr.map(d=>`<div class="reel-item"><span class="item-icon">${iconFor(d[1],d[0])}</span><small>${d[1]}</small></div>`).join(''));track.style.transform=`translateX(${currentX}px)`;wrap.classList.remove('hidden');$('caseResult').classList.add('hidden');return winnerIndex}
+function makeReel(winner){const c=CASES[selected],track=$('reelTrack'),wrap=$('reelWrap');const computed=getComputedStyle(track).transform;let currentX=0;if(computed&&computed!=='none'){const m=new DOMMatrixReadOnly(computed);currentX=m.m41}track.classList.remove('idle');track.style.animation='none';track.style.transition='none';track.style.transform=`translate3d(${currentX}px,0,0)`;void track.offsetWidth;const winnerIndex=track.children.length+34;const arr=[];for(let i=0;i<42;i++)arr.push(i===34?winner:c.drops[Math.floor(Math.random()*c.drops.length)]);track.insertAdjacentHTML('beforeend',arr.map(d=>`<div class="reel-item"><span class="item-icon">${iconFor(d[1],d[0])}</span><small>${d[1]}</small></div>`).join(''));track.style.transform=`translate3d(${currentX}px,0,0)`;void track.offsetWidth;wrap.classList.remove('hidden');$('caseResult').classList.add('hidden');return winnerIndex}
 $('caseGrid').addEventListener('click',e=>{const b=e.target.closest('[data-case]');if(!b||spinning)return;selected=+b.dataset.case;lastDrop=null;$('open').classList.remove('hidden');$('caseResult').classList.add('hidden');$('reelWrap').classList.remove('hidden');renderCases();idleCaseReel()});
 function rarityGlow(rarity){const r=(rarity||'').toLowerCase();if(r.includes('легендар'))return '#ffd45c';if(r.includes('эпич'))return '#b78cff';if(r.includes('мифич'))return '#6d9cff';if(r.includes('вечн'))return '#ff6b91';if(r.includes('редк'))return '#63d4ff';return '#c7d3df'}
 function closeRareReveal(){const el=$('rareReveal');el.classList.add('hidden');el.classList.remove('play','open-chest','reeling','revealed');$('rareRevealActions').classList.remove('ready');$('rareReveal').setAttribute('aria-hidden','true')}
@@ -611,7 +631,7 @@ $('transferButton').addEventListener('click',async()=>{
    tx.update(recipientRef,{ 'state.balance':recipientBalance+amount,updatedAt:serverTimestamp() });
   });
   state.balance-=amount;save();$('transferAmount').value='';transferStatus(`Успешно передано ${fmt(amount)} апов игроку @${raw}.`);
- }catch(error){console.error('Aps transfer failed:',error);transferStatus(error.message||'Не удалось выполнить перевод. Проверьте правила Firestore.',true)}
+ }catch(error){console.error('Aps transfer failed:',error);transferStatus(error.code==='permission-denied'?'Firestore запрещает перевод апов: нужна серверная операция перевода и соответствующие правила доступа. Изменять баланс напрямую из браузера небезопасно.':(error.message||'Не удалось выполнить перевод.'),true)}
  finally{btn.disabled=false;btn.textContent='Передать'}
 });
 
