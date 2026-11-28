@@ -795,6 +795,7 @@ const db = getFirestore(app);
 const CASEUP_OWNER_UID = "pfn6jICaIkZxBxwUDzlplkiuHYn1";
 let maintenanceEnabled = false;
 let maintenanceLoaded = false;
+let maintenanceError = false;
 let maintenanceUnsubscribe = null;
 auth.languageCode = "ru";
 try {
@@ -821,15 +822,19 @@ window.caseupRenderProfile = function(){ $("profileNickname").textContent = curr
 function updateMaintenanceUI(){
  const owner=currentUser?.uid===CASEUP_OWNER_UID;
  const gate=$("maintenanceGate"),title=$("maintenanceGateTitle"),message=$("maintenanceGateText");
- if(!maintenanceLoaded){gate.classList.remove("hidden");title.textContent="Проверяем доступ…";message.textContent="Секунду, проверяем состояние CaseUp.";}
- else if(maintenanceEnabled&&!owner){gate.classList.remove("hidden");title.textContent="CaseUp на техобслуживании";message.textContent="Мы временно закрыли игру для обновления. Загляни немного позже!";}
+ // Владелец никогда не должен блокироваться проверкой собственного maintenance-документа.
+ if(owner)gate.classList.add("hidden");
+ else if(maintenanceLoaded&&maintenanceEnabled){gate.classList.remove("hidden");title.textContent="CaseUp на техобслуживании";message.textContent="Мы временно закрыли игру для обновления. Загляни немного позже!";}
+ else if(!maintenanceLoaded){gate.classList.remove("hidden");title.textContent=maintenanceError?"Не удалось проверить доступ":"Проверяем доступ…";message.textContent=maintenanceError?"Не удалось получить статус техобслуживания. Обнови страницу или проверь подключение.":"Секунду, проверяем состояние CaseUp.";}
  else gate.classList.add("hidden");
  const admin=$("maintenanceAdmin"),button=$("maintenanceToggle"),status=$("maintenanceStatus");
- if(admin&&button&&status){admin.classList.toggle("hidden",!owner);button.textContent=maintenanceEnabled?"Выключить техобслуживание":"Включить техобслуживание";button.disabled=!maintenanceLoaded;status.textContent=maintenanceLoaded?(maintenanceEnabled?"Сейчас сайт закрыт для остальных игроков.":"Сайт открыт для всех игроков."):"Загрузка статуса…";}
+ if(admin&&button&&status){admin.classList.toggle("hidden",!owner);button.textContent=maintenanceEnabled?"Выключить техобслуживание":"Включить техобслуживание";button.disabled=!maintenanceLoaded;status.textContent=maintenanceLoaded?(maintenanceEnabled?"Сейчас сайт закрыт для остальных игроков.":"Сайт открыт для всех игроков."):maintenanceError?"Не удалось загрузить статус — проверь Rules и интернет.":"Загрузка статуса…";}
 }
 function startMaintenanceListener(){
  if(maintenanceUnsubscribe)return;
- maintenanceUnsubscribe=onSnapshot(doc(db,"appConfig","maintenance"),snap=>{maintenanceEnabled=!!(snap.exists()&&snap.data().enabled===true);maintenanceLoaded=true;updateMaintenanceUI();},error=>{console.error("Maintenance status read failed:",error);maintenanceLoaded=false;const title=$("maintenanceGateTitle"),message=$("maintenanceGateText");title.textContent="Не удалось проверить доступ";message.textContent="Проверь подключение. Пока статус не проверен, вход в игру временно закрыт.";$("maintenanceGate").classList.remove("hidden");const b=$("maintenanceToggle");if(b)b.disabled=true;});
+ // Если Firestore не ответил, не оставляем владельца на бесконечном экране проверки.
+ setTimeout(()=>{if(!maintenanceLoaded){maintenanceError=true;updateMaintenanceUI();}},10000);
+ maintenanceUnsubscribe=onSnapshot(doc(db,"appConfig","maintenance"),snap=>{maintenanceEnabled=!!(snap.exists()&&snap.data().enabled===true);maintenanceLoaded=true;maintenanceError=false;updateMaintenanceUI();},error=>{console.error("Maintenance status read failed:",error);maintenanceLoaded=false;maintenanceError=true;updateMaintenanceUI();});
 }
 $("maintenanceToggle").addEventListener("click",async()=>{if(currentUser?.uid!==CASEUP_OWNER_UID)return;const button=$("maintenanceToggle"),next=!maintenanceEnabled;button.disabled=true;button.textContent="Сохраняем…";try{await setDoc(doc(db,"appConfig","maintenance"),{enabled:next,updatedAt:serverTimestamp(),updatedBy:CASEUP_OWNER_UID},{merge:true});}catch(error){console.error("Maintenance update failed:",error);$("maintenanceStatus").textContent=error?.code==="permission-denied"?"Firebase Rules не разрешили изменение. Нужно добавить правило для appConfig/maintenance.":"Не удалось сохранить настройку. Проверь интернет.";button.disabled=false;button.textContent=maintenanceEnabled?"Выключить техобслуживание":"Включить техобслуживание";}});
 function transferStatus(message,error=false){const el=$('transferStatus');if(!el)return;el.textContent=message;el.className='transfer-status'+(error?' error':message?' success':'')}
