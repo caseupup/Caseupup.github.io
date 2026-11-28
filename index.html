@@ -111,6 +111,7 @@ h2{font-size:19px;margin:0 0 12px}#upgrade>h2,#bonus>h2,#gift>h2{text-align:cent
 .confirm-card h3{margin:0 0 12px;font-size:19px}
 .confirm-card p{color:var(--muted);font-size:14px;line-height:1.45;margin:0 0 18px}
 .confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.maintenance-card{margin-top:16px;padding:14px;border:1px solid #6b5930;background:linear-gradient(145deg,#302a1b,#211e19);border-radius:13px;text-align:left}.maintenance-card h3{margin:0 0 6px;font-size:15px}.maintenance-card p{margin:0 0 11px;color:var(--muted);font-size:12px;line-height:1.45}.maintenance-card button{width:100%}.maintenance-state{font-size:12px;margin-top:8px;color:var(--gold);text-align:center}.maintenance-gate{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:22px;background:radial-gradient(ellipse at 50% 0%,#20384b,#080d15 70%);text-align:center}.maintenance-gate-card{width:min(100%,390px);padding:27px 22px;border:1px solid #40556c;border-radius:20px;background:linear-gradient(145deg,#1b2b3d,#111a26);box-shadow:0 20px 70px #000b}.maintenance-gate-card .mark{font-size:46px;margin-bottom:8px}.maintenance-gate-card h1{font-size:22px;margin:0 0 9px}.maintenance-gate-card p{font-size:14px;line-height:1.5;color:var(--muted);margin:0}
 
 
 
@@ -329,6 +330,7 @@ input,select,textarea{font-size:16px;max-width:100%}
  </div>
 </div>
 
+<div class="maintenance-gate" id="maintenanceGate" role="status" aria-live="polite"><div class="maintenance-gate-card"><div class="mark">🛠️</div><h1 id="maintenanceGateTitle">Проверяем доступ…</h1><p id="maintenanceGateText">Секунду, проверяем состояние CaseUp.</p></div></div>
 <main class="wrap">
 <header class="top"><div class="brand" id="brandHome" role="button" tabindex="0" aria-label="На главную"><div class="logo">🐍 Case<span>Up</span></div><div class="sub">VIRTUAL CASE OPENING</div></div><div style="display:flex;align-items:center;gap:7px;justify-content:flex-end;flex-shrink:0"><div class="balance-pill"><span class="coin">🪙</span><span class="balance-value" id="balance">500</span></div><button class="profile-shortcut" id="profileShortcut" type="button" aria-label="Открыть профиль" title="Профиль"><span id="headerAvatar" class="avatar-mark">CU</span></button></div></header>
 <nav class="nav"><button class="active" data-tab="cases">📦 Кейсы</button><button data-tab="upgrade">⚡ Апгрейд</button><button data-tab="games">🎮 Игры</button><button data-tab="bonus">🎁 Бонус</button><button data-tab="inventory">🎒 Инвентарь</button></nav>
@@ -366,7 +368,7 @@ input,select,textarea{font-size:16px;max-width:100%}
 <div class="transfer-box"><div class="transfer-title">💵 Передача апов</div><div class="transfer-desc">🔁 Здесь вы можете передать другому игроку свои апы</div><div class="transfer-row"><input id="transferAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="Количество апов"><input id="transferUsername" type="text" maxlength="17" autocomplete="off" placeholder="Юзернейм"></div><button class="primary transfer-button" id="transferButton" type="button">Передать</button><div class="transfer-status" id="transferStatus"></div></div>
 <div class="stats-title">📊 Статистика</div>
 <div class="profile-stats"><div class="profile-stat"><span>💰 Всего выиграно:</span><strong id="statTotalWon">0</strong></div><div class="profile-stat"><span>🪎 Открыто кейсов:</span><strong id="statCasesOpened">0</strong></div><div class="profile-stat"><span>👾 Сыграно игр:</span><strong id="statGamesPlayed">0</strong></div></div>
-<div class="profile-actions"><button class="secondary" id="profileLogout" type="button">Выйти из аккаунта</button></div></div></section>
+<div class="maintenance-card hidden" id="maintenanceAdmin"><h3>🛠️ Техническое обслуживание</h3><p>Когда включено, остальные игроки увидят экран техработ и не смогут пользоваться CaseUp. Твой аккаунт останется доступен.</p><button class="primary" id="maintenanceToggle" type="button">Включить техобслуживание</button><div class="maintenance-state" id="maintenanceStatus">Загрузка статуса…</div></div><div class="profile-actions"><button class="secondary" id="profileLogout" type="button">Выйти из аккаунта</button></div></div></section>
 <div id="logoutConfirm" class="confirm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="logoutConfirmTitle"><div class="confirm-card"><h3 id="logoutConfirmTitle">❗️ Осторожно</h3><p>Вы точно хотите выйти из своего аккаунта?</p><div class="confirm-actions"><button class="primary" id="confirmLogoutYes" type="button">Да</button><button class="secondary" id="confirmLogoutNo" type="button">Нет</button></div></div></div>
 <div id="sellAllConfirm" class="confirm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="sellAllConfirmTitle"><div class="confirm-card"><h3 id="sellAllConfirmTitle">❗️Осторожно</h3><p>Вы уверены что хотите продать все?</p><div class="confirm-actions"><button class="primary" id="confirmSellAllYes" type="button">Да</button><button class="secondary" id="confirmSellAllNo" type="button">Нет</button></div></div></div>
 <div class="note">CaseUp — развлекательная игра с виртуальными апами и предметами. Апы нельзя купить или вывести за реальные деньги.<br>Прогресс профиля синхронизируется через облако Firebase.</div>
@@ -790,6 +792,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const CASEUP_OWNER_UID = "pfn6jICaIkZxBxwUDzlplkiuHYn1";
+let maintenanceEnabled = false;
+let maintenanceLoaded = false;
+let maintenanceUnsubscribe = null;
 auth.languageCode = "ru";
 try {
   await withTimeout(setPersistence(auth, browserLocalPersistence), 8000, "Не удалось быстро настроить сохранение входа.");
@@ -808,9 +814,24 @@ let pendingUsername = "";
 let currentAvatar = "default";
 let currentAvatarImage = "";
 const AVATARS = ["default", "🐍", "🎮", "💎", "👑"];
+startMaintenanceListener();
 function avatarHTML(value,image=""){ if(image)return `<img src="${image}" alt="Аватар">`;return value === "default" ? '<span class="avatar-mark">CU</span>' : value; }
 function paintAvatar(){ $("headerAvatar").innerHTML = avatarHTML(currentAvatar,currentAvatarImage); $("profileAvatarLarge").innerHTML = avatarHTML(currentAvatar,currentAvatarImage); document.querySelectorAll("[data-avatar]").forEach(b=>b.classList.toggle("selected",!currentAvatarImage&&b.dataset.avatar===currentAvatar)); }
-window.caseupRenderProfile = function(){ $("profileNickname").textContent = currentUsername ? "@"+currentUsername : "Профиль"; $("profileEmail").textContent = currentUser?.email || ""; paintAvatar(); };
+window.caseupRenderProfile = function(){ $("profileNickname").textContent = currentUsername ? "@"+currentUsername : "Профиль"; $("profileEmail").textContent = currentUser?.email || ""; paintAvatar(); const admin=$("maintenanceAdmin"); if(admin)admin.classList.toggle("hidden",currentUser?.uid!==CASEUP_OWNER_UID); updateMaintenanceUI(); };
+function updateMaintenanceUI(){
+ const owner=currentUser?.uid===CASEUP_OWNER_UID;
+ const gate=$("maintenanceGate"),title=$("maintenanceGateTitle"),message=$("maintenanceGateText");
+ if(!maintenanceLoaded){gate.classList.remove("hidden");title.textContent="Проверяем доступ…";message.textContent="Секунду, проверяем состояние CaseUp.";}
+ else if(maintenanceEnabled&&!owner){gate.classList.remove("hidden");title.textContent="CaseUp на техобслуживании";message.textContent="Мы временно закрыли игру для обновления. Загляни немного позже!";}
+ else gate.classList.add("hidden");
+ const admin=$("maintenanceAdmin"),button=$("maintenanceToggle"),status=$("maintenanceStatus");
+ if(admin&&button&&status){admin.classList.toggle("hidden",!owner);button.textContent=maintenanceEnabled?"Выключить техобслуживание":"Включить техобслуживание";button.disabled=!maintenanceLoaded;status.textContent=maintenanceLoaded?(maintenanceEnabled?"Сейчас сайт закрыт для остальных игроков.":"Сайт открыт для всех игроков."):"Загрузка статуса…";}
+}
+function startMaintenanceListener(){
+ if(maintenanceUnsubscribe)return;
+ maintenanceUnsubscribe=onSnapshot(doc(db,"appConfig","maintenance"),snap=>{maintenanceEnabled=!!(snap.exists()&&snap.data().enabled===true);maintenanceLoaded=true;updateMaintenanceUI();},error=>{console.error("Maintenance status read failed:",error);maintenanceLoaded=false;const title=$("maintenanceGateTitle"),message=$("maintenanceGateText");title.textContent="Не удалось проверить доступ";message.textContent="Проверь подключение. Пока статус не проверен, вход в игру временно закрыт.";$("maintenanceGate").classList.remove("hidden");const b=$("maintenanceToggle");if(b)b.disabled=true;});
+}
+$("maintenanceToggle").addEventListener("click",async()=>{if(currentUser?.uid!==CASEUP_OWNER_UID)return;const button=$("maintenanceToggle"),next=!maintenanceEnabled;button.disabled=true;button.textContent="Сохраняем…";try{await setDoc(doc(db,"appConfig","maintenance"),{enabled:next,updatedAt:serverTimestamp(),updatedBy:CASEUP_OWNER_UID},{merge:true});}catch(error){console.error("Maintenance update failed:",error);$("maintenanceStatus").textContent=error?.code==="permission-denied"?"Firebase Rules не разрешили изменение. Нужно добавить правило для appConfig/maintenance.":"Не удалось сохранить настройку. Проверь интернет.";button.disabled=false;button.textContent=maintenanceEnabled?"Выключить техобслуживание":"Включить техобслуживание";}});
 function transferStatus(message,error=false){const el=$('transferStatus');if(!el)return;el.textContent=message;el.className='transfer-status'+(error?' error':message?' success':'')}
 // Вставь сюда публичный URL опубликованного Cloudflare Worker.
 const TRANSFER_WORKER_URL = "https://caseup-transfer.pasamotylev-com.workers.dev";
@@ -1143,10 +1164,12 @@ $("retryProfileButton").addEventListener("click", async () => {
 });
 onAuthStateChanged(auth, async user => {
   currentUser = user;
+  updateMaintenanceUI();
   if (!user) {
     authCallbackRun++;
     if (userProfileUnsubscribe) { userProfileUnsubscribe(); userProfileUnsubscribe = null; }
     currentUsername = "";
+    updateMaintenanceUI();
     currentAvatar = "default";
     currentAvatarImage = "";
     profileSetupUser = null;
